@@ -11,6 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ui\TableTests.fs" />
+    <Compile Include="StandardDiscordEmojisTests.fs" />
     <Compile Include="ApiTests.fs" />
     <Compile Include="ExtensionsTests.fs" />
     <Compile Include="Main.fs" />

@@ -75,7 +75,18 @@ module StandartDiscordEmoji =
     let emojiSheetMapWidth = 42
 
     let emojiSheetMap =
-        System.IO.File.ReadAllLines "Shared/DiscordEmojiSheet.txt"
+        let filename = "DiscordEmojiSheet.txt"
+        let content =
+            use content =
+                System.Reflection.Assembly.GetExecutingAssembly()
+                    .GetManifestResourceStream(sprintf "DiscordBotExtensions.%s" filename)
+
+            use stream = new System.IO.StreamReader(content)
+            // use m = new System.IO.MemoryStream()
+            stream.ReadToEnd()
+
+        content
+        |> String.lines
         |> Array.mapi (fun y ->
             String.split " "
             >> Seq.mapi (fun x str -> str, (x, y))

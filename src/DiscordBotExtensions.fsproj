@@ -13,6 +13,7 @@
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="DiscordEmojiSheet.txt" />
     <Compile Include="Types.fs" />
     <Compile Include="DiscordMessage.fs" />
     <Compile Include="Extensions.fs" />
