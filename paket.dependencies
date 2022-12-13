@@ -1,0 +1,28 @@
+storage: none
+source https://api.nuget.org/v3/index.json
+
+framework: netstandard2.0, netcoreapp3.1
+nuget FSharp.Core
+nuget DSharpPlus == 4.2.0-nightly-01105
+nuget Fuchu
+nuget FParsec
+nuget SixLabors.ImageSharp == 1.0.4
+nuget SixLabors.Fonts == 1.0.0-beta15
+nuget SixLabors.ImageSharp.Drawing == 1.0.0-beta13
+nuget MongoDB.Driver
+nuget dotenv.net
+
+source https://gitlab.com/api/v4/projects/28574921/packages/nuget/index.json
+storage: none
+nuget FSharpMyExt
+
+group Build
+    source https://api.nuget.org/v3/index.json
+    framework: netstandard2.0
+    storage: none
+
+    nuget FSharp.Core
+    nuget Fake.Core.ReleaseNotes
+    nuget Fake.Core.Target
+    nuget Fake.DotNet.Cli
+    nuget Fake.IO.FileSystem
