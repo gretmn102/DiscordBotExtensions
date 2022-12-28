@@ -5,7 +5,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>DiscordBotExtensions</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>Fering</Authors>
     <Company>Home</Company>
     <PackageDescription>FSharp extensions for DSharpPlus</PackageDescription>
