@@ -1,4 +1,6 @@
 namespace DiscordMessage
+open FsharpMyExtension
+
 open Types
 
 type CustomEmoji =
@@ -7,10 +9,55 @@ type CustomEmoji =
         Animated: bool
         Name: string
     }
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+[<RequireQualifiedAccess>]
+module CustomEmoji =
+    module Parser =
+        open FParsec
+
+        let parser<'u> : Parser<_, 'u> =
+            pipe3
+                (stringReturn "<:" false <|> stringReturn "<a:" true)
+                (manySatisfy ((<>) ':') .>> skipChar ':')
+                (puint64 .>> pchar '>')
+                (fun animated name id ->
+                    {
+                        Id = id
+                        Animated = animated
+                        Name = name
+                    }
+                )
+
+    let toString (customEmoji: CustomEmoji) =
+        sprintf "<:%s:%d>" customEmoji.Name customEmoji.Id
+
+    let parse =
+        FParsecExt.runResult Parser.parser
 
 type UnicodeOrCustomEmoji =
     | UnicodeEmoji of string
     | CustomEmoji of CustomEmoji
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+[<RequireQualifiedAccess>]
+module UnicodeOrCustomEmoji =
+    module Parser =
+        open FParsec
+
+        let punicodeEmoji<'u> : Parser<_, 'u> =
+            many1Satisfy ((<>) ' ') // TODO!
+
+        let parser<'u> : Parser<_, 'u> =
+            CustomEmoji.Parser.parser |>> CustomEmoji <|> (punicodeEmoji |>> UnicodeEmoji)
+
+    let toString (unicodeOrCustomEmoji: UnicodeOrCustomEmoji) =
+        match unicodeOrCustomEmoji with
+        | CustomEmoji x ->
+            sprintf "<:%s:%d>" x.Name x.Id
+        | UnicodeEmoji emoji ->
+            emoji
+
+    let parse =
+        FParsecExt.runResult Parser.parser
 
 module Parser =
     open FParsec
@@ -45,19 +92,6 @@ module Parser =
     let pchannelMentionTarget<'u> (channelId: ChannelId): Parser<_, 'u> =
         pchannelMentionTargetStr (string channelId)
 
-    let pcustomEmoji<'u> : Parser<_, 'u> =
-        pipe3
-            (stringReturn "<:" false <|> stringReturn "<a:" true)
-            (manySatisfy ((<>) ':') .>> skipChar ':')
-            (puint64 .>> pchar '>')
-            (fun animated name id ->
-                {
-                    Id = id
-                    Animated = animated
-                    Name = name
-                }
-            )
-
     let pmessagePath<'u> : Parser<_, 'u> =
         pipe3
             (skipString "https://discord.com/channels/" >>. puint64 .>> pchar '/')
@@ -72,7 +106,7 @@ module Parser =
             )
 
     let pemoji<'u> : Parser<_, 'u> =
-        pcustomEmoji |>> CustomEmoji <|> (many1Satisfy ((<>) ' ') |>> UnicodeEmoji)
+        UnicodeOrCustomEmoji.Parser.parser<'u>
 
     let pcodeBlock<'u> : Parser<_, 'u> =
         between (skipString "```" .>> skipManySatisfy ((<>) '\n') .>> skipChar '\n')
