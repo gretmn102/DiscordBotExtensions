@@ -10,6 +10,12 @@ type EmojiId = uint64
 type RoleId = uint64
 type WebhookId = uint64
 
+type ChannelPath =
+    {
+        GuildId: GuildId
+        ChannelId: ChannelId
+    }
+
 type MessagePath =
     {
         GuildId: GuildId
@@ -24,6 +30,11 @@ type MessagePath =
         }
     member this.ToDiscordPath =
         sprintf "https://discord.com/channels/%d/%d/%d" this.GuildId this.ChannelId this.MessageId
+    member this.ToChannelPath =
+        {
+            GuildId = this.GuildId
+            ChannelId = this.ChannelId
+        }
 
 type EnabledOptionValue<'Value> =
     {
