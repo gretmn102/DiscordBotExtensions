@@ -58,7 +58,7 @@ Target.create "Pack" (fun _ ->
     |> dotnet (sprintf "pack -c Release -o \"%s\"" deployDir)
 )
 
-Target.create "PublicToGitlab" (fun _ ->
+Target.create "PublishToGitlab" (fun _ ->
     let packPathPattern = sprintf "%s/*.nupkg" deployDir
     let packPath =
         !! packPathPattern |> Seq.tryExactlyOne
@@ -90,7 +90,7 @@ open Fake.Core.TargetOperators
 
 "Clean"
   ==> "Pack"
-  ==> "PublicToGitlab"
+  ==> "PublishToGitlab"
 
 "BuildTests"
 
