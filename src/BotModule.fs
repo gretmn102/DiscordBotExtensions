@@ -6,6 +6,7 @@ open FsharpMyExtension
 open Microsoft.Extensions.Logging
 
 open Types
+open Extensions
 
 let botEventId = new EventId(1, "Bot-Module")
 
@@ -31,6 +32,7 @@ type BotModule =
         InviteCreatedHandler: Option<EventArgs.InviteCreateEventArgs -> unit>
         InviteDeletedHandler: Option<EventArgs.InviteDeleteEventArgs -> unit>
         Scheduler: Option<DiscordClient -> ref<bool>>
+        InteractionCommands: Option<InteractionCommand.Commands>
     }
 
 let empty: BotModule =
@@ -51,6 +53,7 @@ let empty: BotModule =
         InviteCreatedHandler = None
         InviteDeletedHandler = None
         Scheduler = None
+        InteractionCommands = None
     }
 
 let bindToClientsEvents initCommandParser startCommandParser cmd appsHubResp (client: DiscordClient) (botModules: BotModule []) =
@@ -271,3 +274,11 @@ let bindToClientsEvents initCommandParser startCommandParser cmd appsHubResp (cl
 
         Task.CompletedTask
     ))
+
+    let InteractionCommands: InteractionCommand.Commands =
+        botModules
+        |> Array.choose (fun x -> x.InteractionCommands)
+        |> Array.concat
+    InteractionCommand.Commands.register
+        InteractionCommands
+        client

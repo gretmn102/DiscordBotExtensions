@@ -125,6 +125,94 @@ module Interaction =
                 |> Some
             | _ -> None
 
+module InteractionCommand =
+    type Command =
+        | CommandMenu of {|
+                CommandName: string
+                Command: Entities.DiscordApplicationCommand
+                Handler: (EventArgs.ContextMenuInteractionCreateEventArgs -> unit)
+            |}
+        | SlashCommand of {|
+                CommandName: string
+                Command: Entities.DiscordApplicationCommand
+                Handler: (EventArgs.InteractionCreateEventArgs -> unit)
+            |}
+
+    type Commands = Command []
+    [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+    [<RequireQualifiedAccess>]
+    module Commands =
+        open System.Threading.Tasks
+
+        open Types
+
+        let register (commands: Command []) (client: DiscordClient) =
+            let rawCommands =
+                commands
+                |> Array.map (function
+                    | CommandMenu c ->
+                        c.Command
+                    | SlashCommand c ->
+                        c.Command
+                )
+            client.add_Ready(Emzi0767.Utilities.AsyncEventHandler (fun client _ ->
+                awaiti <| client.BulkOverwriteGlobalApplicationCommandsAsync rawCommands
+
+                Task.CompletedTask
+            ))
+
+            let menuCommands =
+                commands
+                |> Array.choose (function
+                    | CommandMenu c -> Some c
+                    | _ -> None
+                )
+                |> List.ofArray
+
+            client.add_ContextMenuInteractionCreated(Emzi0767.Utilities.AsyncEventHandler (fun client e ->
+                let isHandled =
+                    menuCommands
+                    |> List.exactlyFold
+                        (fun st f ->
+                            let st =
+                                if e.Interaction.Data.Name = f.CommandName then
+                                    f.Handler e
+                                    true
+                                else
+                                    false
+                            st, st
+                        )
+                        false
+
+                Task.CompletedTask
+            ))
+
+            let slashCommands =
+                commands
+                |> Array.choose (function
+                    | SlashCommand c -> Some c
+                    | _ -> None
+                )
+                |> List.ofArray
+
+            client.add_InteractionCreated(Emzi0767.Utilities.AsyncEventHandler (fun client e ->
+                let isHandled =
+                    slashCommands
+                    |> List.exactlyFold
+                        (fun st f ->
+                            let st =
+                                if e.Interaction.Data.Name = f.CommandName then
+                                    f.Handler e
+                                    true
+                                else
+                                    false
+                            st, st
+                        )
+                        false
+
+                Task.CompletedTask
+            ))
+
 type DataOrUrl =
     | Data of string
     | Url of string
