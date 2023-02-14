@@ -6,6 +6,19 @@ open Newtonsoft.Json
 
 open Types
 
+type IMongoCollection<'a> with
+    /// Same as `BulkWrite` but allows an empty sequence to avoid the exception:
+    ///
+    /// ```
+    /// System.ArgumentException: Must contain at least 1 request. (Parameter 'requests')
+    /// ```
+    member collection.bulkWriteEmpty(requests: seq<WriteModel<'a>>) =
+        if Seq.isEmpty requests then
+            BulkWriteResult.Unacknowledged(0, Seq.empty)
+            :> BulkWriteResult<'a>
+        else
+            collection.BulkWrite requests
+
 type MapSerializer<'Key, 'Value when 'Key : comparison>() =
     inherit Serializers.SerializerBase<Map<'Key, 'Value>>()
     // https://stackoverflow.com/questions/47510650/c-sharp-mongodb-complex-class-serialization
@@ -108,7 +121,7 @@ module CommonDb =
                 | _ ->
                     failwithf "%A write model not implemented!" writeModelType
             )
-            |> collection.BulkWrite
+            |> collection.bulkWriteEmpty
 
         let removeById (id: 'Id) (collection: Collection) =
             let filter = createFilterById id
@@ -120,7 +133,7 @@ module CommonDb =
                 let filter = createFilterById id
                 DeleteOneModel(filter) :> WriteModel<_>
             )
-            |> collection.BulkWrite
+            |> collection.bulkWriteEmpty
 
     type GuildData<'Id, 'Version, 'MainData when 'Id : comparison and 'Version: enum<int>> =
         {
