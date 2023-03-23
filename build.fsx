@@ -82,7 +82,7 @@ Target.create "RunTests" (fun _ ->
     |> dotnet "run -c Release"
 )
 
-Target.create "ExampleBotRun" (fun _ ->
+Target.create "RunExampleBot" (fun _ ->
     exampleBotDir
     |> dotnet "run -c Release"
 )
@@ -105,6 +105,6 @@ open Fake.Core.TargetOperators
 
 "RunTests"
 
-"ExampleBotRun"
+"RunExampleBot"
 
 Target.runOrDefault "Deploy"
