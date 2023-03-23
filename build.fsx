@@ -28,6 +28,10 @@ let testsProjDir = Path.getDirectory testProjPath
 let mainProjName = "DiscordBotExtensions"
 let mainProjPath = f mainProjName
 let mainProjDir = Path.getDirectory mainProjPath
+let exampleBotName = "ExampleBot"
+let exampleBotPath = f exampleBotName
+let exampleBotDir = Path.getDirectory exampleBotPath
+
 
 let deployDir = Path.getFullName "./deploy"
 // --------------------------------------------------------------------------------------
@@ -78,6 +82,11 @@ Target.create "RunTests" (fun _ ->
     |> dotnet "run -c Release"
 )
 
+Target.create "ExampleBotRun" (fun _ ->
+    exampleBotDir
+    |> dotnet "run -c Release"
+)
+
 // --------------------------------------------------------------------------------------
 // Build order
 // --------------------------------------------------------------------------------------
@@ -95,5 +104,7 @@ open Fake.Core.TargetOperators
 "BuildTests"
 
 "RunTests"
+
+"ExampleBotRun"
 
 Target.runOrDefault "Deploy"
