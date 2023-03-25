@@ -95,29 +95,29 @@ let main argv =
 
     let prefix = "."
 
+    botModules
+    |> Shared.BotModule.bindToClientsEvents
+        prefix
+        (fun client e ->
+            let b = Entities.DiscordMessageBuilder()
+            let embed = Entities.DiscordEmbedBuilder()
+            embed.Description <- ExampleModule.Action.help prefix
+            b.Embed <- embed
+            awaiti <| e.Channel.SendMessageAsync(b)
+        )
+        (fun client e ->
+            let b = Entities.DiscordMessageBuilder()
+            let embed = Entities.DiscordEmbedBuilder()
+            embed.Description <-
+                sprintf "Unknown command:\n%s" (ExampleModule.Action.help prefix)
+            b.Embed <- embed
+            awaiti <| e.Channel.SendMessageAsync(b)
+        )
+        (fun _ _ -> ())
+        client
+
     client.add_Ready(Emzi0767.Utilities.AsyncEventHandler (fun client readyEventArgs ->
         client.Logger.LogInformation(botEventId, "Client is ready to process events.")
-
-        botModules
-        |> Shared.BotModule.bindToClientsEvents
-            prefix
-            (fun client e ->
-                let b = Entities.DiscordMessageBuilder()
-                let embed = Entities.DiscordEmbedBuilder()
-                embed.Description <- ExampleModule.Action.help prefix
-                b.Embed <- embed
-                awaiti <| e.Channel.SendMessageAsync(b)
-            )
-            (fun client e ->
-                let b = Entities.DiscordMessageBuilder()
-                let embed = Entities.DiscordEmbedBuilder()
-                embed.Description <-
-                    sprintf "Unknown command:\n%s" (ExampleModule.Action.help prefix)
-                b.Embed <- embed
-                awaiti <| e.Channel.SendMessageAsync(b)
-            )
-            (fun _ _ -> ())
-            client
 
         Task.CompletedTask
     ))

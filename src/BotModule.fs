@@ -84,6 +84,22 @@ module CommandParser =
 let bindToClientsEvents prefix emptyMentionHandle unknownCommandHandle appsHubResp (client: DiscordClient) (botModules: BotModule []) =
     let logger = client.Logger
 
+    let parseExcludeCommands = ref None
+    let createParseExcludeCommands botId =
+        let pcommands =
+            botModules
+            |> Array.choose (fun x ->
+                x.MessageCreateEventHandleExclude
+            )
+            |> CommandParser.initCommandParser
+        CommandParser.start prefix botId pcommands
+
+    client.add_Ready (Emzi0767.Utilities.AsyncEventHandler (fun client e ->
+        parseExcludeCommands := Some (createParseExcludeCommands client.CurrentUser.Id)
+
+        Task.CompletedTask
+    ))
+
     let schedulers =
         botModules
         |> Array.choose (fun x ->
@@ -116,15 +132,6 @@ let bindToClientsEvents prefix emptyMentionHandle unknownCommandHandle appsHubRe
         Task.CompletedTask
     ))
 
-    let parseExcludeCommands =
-        let pcommands =
-            botModules
-            |> Array.choose (fun x ->
-                x.MessageCreateEventHandleExclude
-            )
-            |> CommandParser.initCommandParser
-        CommandParser.start prefix client.CurrentUser.Id pcommands
-
     let messageCreateHandlers =
         botModules
         |> Array.choose (fun x ->
@@ -135,19 +142,22 @@ let bindToClientsEvents prefix emptyMentionHandle unknownCommandHandle appsHubRe
         let botId = client.CurrentUser.Id
 
         if authorId <> botId then
-            match parseExcludeCommands e.Message.Content with
-            | Result.Ok res ->
-                match res with
-                | CommandParser.Pass -> ()
-                | CommandParser.Unknown ->
-                    unknownCommandHandle client e
-                | CommandParser.Empty ->
-                    emptyMentionHandle client e
-                | CommandParser.Command exec ->
-                    exec (client, e)
+            !parseExcludeCommands
+            |> Option.iter (fun parseExcludeCommands ->
+                match parseExcludeCommands e.Message.Content with
+                | Result.Ok res ->
+                    match res with
+                    | CommandParser.Pass -> ()
+                    | CommandParser.Unknown ->
+                        unknownCommandHandle client e
+                    | CommandParser.Empty ->
+                        emptyMentionHandle client e
+                    | CommandParser.Command exec ->
+                        exec (client, e)
 
-            | Result.Error x ->
-                awaiti (client.SendMessageAsync (e.Channel, (sprintf "Ошибка:\n```\n%s\n```" x)))
+                | Result.Error x ->
+                    awaiti (client.SendMessageAsync (e.Channel, (sprintf "Ошибка:\n```\n%s\n```" x)))
+            )
 
         messageCreateHandlers
         |> Array.iter (fun f -> f (client, e))
