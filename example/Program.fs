@@ -2,6 +2,7 @@ module Program
 open Microsoft.Extensions.Logging
 open System.Threading.Tasks
 open DSharpPlus
+open FsharpMyExtension
 
 open Types
 
@@ -10,6 +11,7 @@ module ExampleModule =
 
     type Action =
         | Hello of name: string
+        | Reload
     [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
     [<RequireQualifiedAccess>]
     module Action =
@@ -24,9 +26,13 @@ module ExampleModule =
                 pstring "hello"
                 >>. manySatisfy (fun _ -> true)
 
+            let preload: _ Parser =
+                pstring "reload"
+
             let start f: _ Parser =
                 choice [
                     phello |>> Hello
+                    preload >>% Reload
                 ]
                 >>= fun msg ->
                     preturn (fun x -> f x msg)
@@ -39,14 +45,19 @@ module ExampleModule =
 
     let request = function
         | Request((client, e), act) ->
+            awaiti <| e.Channel.TriggerTypingAsync()
+
             match act with
             | Hello name ->
-                awaiti <| e.Channel.TriggerTypingAsync()
-
                 let msg =
                     sprintf "Hello, %s" name
 
                 awaiti <| e.Channel.SendMessageAsync(msg)
+
+            | Reload ->
+                awaiti <| e.Channel.SendMessageAsync("reloading...")
+
+                awaiti <| client.ReconnectAsync(true)
 
     let create () =
         { BotModule.empty with
@@ -56,6 +67,26 @@ module ExampleModule =
                         request (Request((client, e), msg))
                     )
                 Some exec
+            Scheduler =
+                let f (client: DiscordClient) =
+                    let scheduler = Scheduler.Scheduler Scheduler.State.Empty
+                    scheduler.AddJob {
+                        Time = System.DateTime.Now.AddMinutes 1
+                        Type = ()
+                    }
+
+                    printfn "starting scheduler..."
+
+                    Scheduler.startAsync scheduler 100 (fun task ->
+                        printfn "Ding!"
+
+                        scheduler.AddJob {
+                            Time = System.DateTime.Now.AddMinutes 1
+                            Type = ()
+                        }
+                    )
+
+                Some f
         }
 
 let botEventId = new EventId(42, "Bot-Event")

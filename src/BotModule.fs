@@ -106,14 +106,19 @@ let bindToClientsEvents prefix emptyMentionHandle unknownCommandHandle appsHubRe
             x.Scheduler
         )
 
+    let schedulersIsLoaded = ref false
+
     client.add_GuildDownloadCompleted (Emzi0767.Utilities.AsyncEventHandler (fun client e ->
         logger.LogInformation(botEventId, "Guild download completed.")
 
-        schedulers
-        |> Array.iter (fun f ->
-            let isContinued = f client
-            ()
-        )
+        if not schedulersIsLoaded.Value then
+            schedulers
+            |> Array.iter (fun f ->
+                let isContinued = f client
+                ()
+            )
+
+            schedulersIsLoaded.Value <- true
 
         Task.CompletedTask
     ))
