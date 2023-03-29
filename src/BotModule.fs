@@ -33,6 +33,7 @@ type BotModule =
         InviteDeletedHandler: Option<EventArgs.InviteDeleteEventArgs -> unit>
         Scheduler: Option<DiscordClient -> ref<bool>>
         InteractionCommands: Option<InteractionCommand.Commands>
+        TypingStarted: Option<DiscordClient * EventArgs.TypingStartEventArgs -> unit>
     }
 
 let empty: BotModule =
@@ -54,6 +55,7 @@ let empty: BotModule =
         InviteDeletedHandler = None
         Scheduler = None
         InteractionCommands = None
+        TypingStarted = None
     }
 
 module CommandParser =
@@ -327,6 +329,18 @@ let bindToClientsEvents prefix emptyMentionHandle unknownCommandHandle appsHubRe
                     st, st
                 )
                 false
+
+        Task.CompletedTask
+    ))
+
+    let componentInteractionCreatedHandlers =
+        botModules
+        |> Array.choose (fun x ->
+            x.TypingStarted
+        )
+    client.add_TypingStarted (Emzi0767.Utilities.AsyncEventHandler (fun client e ->
+        componentInteractionCreatedHandlers
+        |> Array.iter (fun f -> f (client, e))
 
         Task.CompletedTask
     ))
