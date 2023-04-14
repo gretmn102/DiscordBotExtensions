@@ -88,6 +88,8 @@ module Interaction =
 
         module Parser =
             open FParsec
+            open FsharpMyExtension.ResultExt
+            open FsharpMyExtension.FParsecExt
 
             type 'a Parser = Parser<'a, unit>
 
@@ -102,11 +104,19 @@ module Interaction =
                 manyStrings
                     (many1Satisfy (isNoneOf "\\\n") <|> pescapedNewline)
 
+            // let inline pcomponentId< ^ComponentId when ^ComponentId: enum<int32>> : ^ComponentId Parser =
+            //     pint32 |>> enum< ^ComponentId>
+
+            let pcomponentId: int32 Parser =
+                pint32
+
+            let pformId: _ Parser = pescapedString
+
             let inline parse pdata: ComponentState<'ComponentId, 'Data> Parser =
                 let p =
                     pipe3
-                        (pescapedString .>> newline)
-                        (pint32 .>> newline)
+                        (pformId .>> newline)
+                        (pcomponentId .>> newline)
                         pdata
                         (fun id componentId data ->
                             {
@@ -118,12 +128,85 @@ module Interaction =
 
                 pheader >>. p
 
+            let parseHeader str =
+                run pheader str
+                |> ParserResult.toResult
+                |> Result.map (fun (_, _, pos) -> int pos.Index)
+                |> Result.toOption
+
+            let parseFormId (index: int) str =
+                runParserOnSubstringStart (pformId .>> newline) index str
+                |> ParserResult.toResult
+                |> Result.map (fun (res, _, pos) -> res, int pos.Index)
+
+            let parseComponentId (index: int) str =
+                runParserOnSubstringStart (pcomponentId .>> newline) index str
+                |> ParserResult.toResult
+                |> Result.map (fun (res, _, pos) -> res, int pos.Index)
+
+            let parseData (pdata: 'Data Parser) (index: int) str =
+                runParserOnSubstringStart pdata index str
+                |> ParserResult.toResult
+                |> Result.map (fun (res, _, _) -> res)
+
+            module Builder =
+                open FSharp.Core
+
+                let parseFormId handleError input next =
+                    match parseHeader input with
+                    | Some pos ->
+                        match parseFormId pos input with
+                        | Ok (formId, pos2) ->
+                            next (formId, pos + pos2)
+
+                        | Error (errMsg, _, _) ->
+                            handleError errMsg
+
+                        true
+                    | None ->
+                        false
+
+                let parseComponentId handleError (pos, input) next =
+                    match parseComponentId pos input with
+                    | Ok (componentId, pos2) ->
+                        next (componentId, pos + pos2)
+                    | Error (errMsg, _, _) ->
+                        handleError errMsg
+
         let inline tryDeserialize pdata str: Result<ComponentState<'ComponentId, 'Data>, _> option =
             match FParsecExt.runResult Parser.pheader str with
             | Ok _ ->
                 FParsecExt.runResult (Parser.parse pdata) str
                 |> Some
             | _ -> None
+
+    let handleForms actions handleAction restartComponent input =
+        let f formId rawComponentId (pos, input: string) next =
+            let handleActions formId rawComponentId str =
+                match Map.tryFind formId actions with
+                | Some parse ->
+                    parse rawComponentId str
+                | None ->
+                    sprintf "Not found '%A' form" formId
+                    |> Error
+
+            let rawState = input.[pos..]
+            match handleActions formId rawComponentId rawState with
+            | Ok x ->
+                next x
+            | Error x ->
+                restartComponent x
+
+        pipeBackwardBuilder {
+            let! formId, pos =
+                ComponentState.Parser.Builder.parseFormId restartComponent input
+            let! rawComponentId, pos =
+                ComponentState.Parser.Builder.parseComponentId restartComponent (pos, input)
+            let! action = f formId rawComponentId (pos, input)
+            handleAction action
+
+            return ()
+        }
 
 module InteractionCommand =
     type Command =
