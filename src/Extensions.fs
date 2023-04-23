@@ -9,9 +9,13 @@ module DiscordEmbed =
 module Interaction =
     open Newtonsoft.Json
 
-    type ComponentState<'ComponentId, 'Data when 'ComponentId: enum<int>> =
+    type RawComponentId = int32
+
+    type FormId = string
+
+    type ComponentState<'ComponentId, 'Data when 'ComponentId: enum<RawComponentId>> =
         {
-            Id: string
+            Id: FormId
             [<JsonProperty("CI")>]
             ComponentId: 'ComponentId
             [<JsonProperty("D")>]
@@ -107,10 +111,10 @@ module Interaction =
             // let inline pcomponentId< ^ComponentId when ^ComponentId: enum<int32>> : ^ComponentId Parser =
             //     pint32 |>> enum< ^ComponentId>
 
-            let pcomponentId: int32 Parser =
+            let pcomponentId: RawComponentId Parser =
                 pint32
 
-            let pformId: _ Parser = pescapedString
+            let pformId: FormId Parser = pescapedString
 
             let inline parse pdata: ComponentState<'ComponentId, 'Data> Parser =
                 let p =
@@ -149,30 +153,6 @@ module Interaction =
                 |> ParserResult.toResult
                 |> Result.map (fun (res, _, _) -> res)
 
-            module Builder =
-                open FSharp.Core
-
-                let parseFormId handleError input next =
-                    match parseHeader input with
-                    | Some pos ->
-                        match parseFormId pos input with
-                        | Ok (formId, pos2) ->
-                            next (formId, pos + pos2)
-
-                        | Error (errMsg, _, _) ->
-                            handleError errMsg
-
-                        true
-                    | None ->
-                        false
-
-                let parseComponentId handleError (pos, input) next =
-                    match parseComponentId pos input with
-                    | Ok (componentId, pos2) ->
-                        next (componentId, pos + pos2)
-                    | Error (errMsg, _, _) ->
-                        handleError errMsg
-
         let inline tryDeserialize pdata str: Result<ComponentState<'ComponentId, 'Data>, _> option =
             match FParsecExt.runResult Parser.pheader str with
             | Ok _ ->
@@ -180,33 +160,119 @@ module Interaction =
                 |> Some
             | _ -> None
 
-    let handleForms actions handleAction restartComponent input =
-        let f formId rawComponentId (pos, input: string) next =
-            let handleActions formId rawComponentId str =
-                match Map.tryFind formId actions with
-                | Some parse ->
-                    parse rawComponentId str
-                | None ->
-                    sprintf "Not found '%A' form" formId
-                    |> Error
+    [<RequireQualifiedAccessAttribute; Struct>]
+    type HandleFormsError =
+        | NotFoundHeader
+        | ParseFormIdError of parseFormIdErrMsg: string
+        | NotFoundFormId
+        | ParseComponentIdError of parseComponentIdErrMsg: string
+        | NotFoundComponentStateParser
+        | ParseComponentStateError of parseComponentStateErrMsg: string
 
-            let rawState = input.[pos..]
-            match handleActions formId rawComponentId rawState with
+    type ComponentStateParser<'State> = (int32 * string) -> Result<'State, string>
+
+    type ComponentStateParsers<'State> = Map<RawComponentId, ComponentStateParser<'State>>
+
+    type Forms<'Action> = Map<FormId, ComponentStateParsers<'Action>>
+
+    /// Parses and finds the current form from the set of forms, parses and finds the component ID,
+    /// find and parses the state by the component ID, and returns the component state.
+    let parseForms (forms: Forms<'State>) input =
+        let parseHeader input next =
+            match ComponentState.Parser.parseHeader input with
+            | Some pos ->
+                next pos
+            | None ->
+                HandleFormsError.NotFoundHeader
+                |> Error
+
+        let parseFormId (pos, input) next =
+            match ComponentState.Parser.parseFormId pos input with
+            | Ok (formId, pos2) ->
+                (formId, pos + pos2)
+                |> next
+
+            | Error (errMsg, _, _) ->
+                HandleFormsError.ParseFormIdError errMsg
+                |> Error
+
+        let getFormById formId next =
+            match Map.tryFind formId forms with
+            | Some form ->
+                next form
+            | None ->
+                HandleFormsError.NotFoundFormId
+                |> Error
+
+        let parseComponentId (pos, input) next =
+            match ComponentState.Parser.parseComponentId pos input with
+            | Ok (componentId, pos2) ->
+                (componentId, pos + pos2)
+                |> next
+            | Error (errMsg, _, _) ->
+                HandleFormsError.ParseComponentIdError errMsg
+                |> Error
+
+        let getComponentStateParser (componentId: RawComponentId) (stateParsers: ComponentStateParsers<'State>) next =
+            match Map.tryFind componentId stateParsers with
+            | Some form ->
+                next form
+            | None ->
+                HandleFormsError.NotFoundComponentStateParser
+                |> Error
+
+        let parseComponentState (parseData: ComponentStateParser<'State>) (pos, input) next =
+            match parseData (pos, input) with
             | Ok x ->
                 next x
-            | Error x ->
-                restartComponent x
+            | Error errMsg ->
+                HandleFormsError.ParseComponentStateError errMsg
+                |> Error
 
         pipeBackwardBuilder {
-            let! formId, pos =
-                ComponentState.Parser.Builder.parseFormId restartComponent input
-            let! rawComponentId, pos =
-                ComponentState.Parser.Builder.parseComponentId restartComponent (pos, input)
-            let! action = f formId rawComponentId (pos, input)
-            handleAction action
+            let! pos =
+                parseHeader input
 
-            return ()
+            let! formId, pos =
+                parseFormId (pos, input)
+
+            let! componentStateParsers =
+                getFormById formId
+
+            let! rawComponentId, pos =
+                parseComponentId (pos, input)
+
+            let! componentStateParser =
+                getComponentStateParser rawComponentId componentStateParsers
+
+            let! action = parseComponentState componentStateParser (pos, input)
+
+            return Ok action
         }
+
+    let handleForms (forms: Forms<_>) error next input =
+        match parseForms forms input with
+        | Error x ->
+            match x with
+            | HandleFormsError.NotFoundHeader ->
+                false
+            | HandleFormsError.NotFoundFormId ->
+                false
+            | HandleFormsError.ParseFormIdError errMsg ->
+                error (sprintf "ParseFormId:\n%A" errMsg)
+                true
+            | HandleFormsError.ParseComponentIdError errMsg ->
+                error (sprintf "ParseComponentId:\n%A" errMsg)
+                true
+            | HandleFormsError.NotFoundComponentStateParser ->
+                error "NotFoundComponentStateParser"
+                true
+            | HandleFormsError.ParseComponentStateError errMsg ->
+                error (sprintf "ParseComponentData:\n%A" errMsg)
+                true
+        | Ok state ->
+            next state
+            true
 
 module InteractionCommand =
     type Command =

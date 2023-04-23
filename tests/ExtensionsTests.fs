@@ -27,173 +27,252 @@ module InteractionTests =
             ]
 
     module FormsHandleTests =
-        module Form1 =
-            open Extensions.Interaction
+        module FirstModule =
+            module Form1 =
+                open Extensions.Interaction
 
-            let viewId = "form1Id"
+                let viewId = "form1Id"
 
-            type ComponentId =
-                | FirstButton = 0
-                | SecondButton = 1
+                type ComponentId =
+                    | FirstButton = 0
+                    | SecondButton = 1
 
-            type FirstButtonState =
-                {
-                    User: string
-                }
-            [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-            [<RequireQualifiedAccess>]
-            module FirstButtonState =
-                let create user = { User = user }
-                let serialize x =
-                    let ser (x: FirstButtonState) =
-                        let raw = Json.ser x
-                        ShowList.showString raw
+                type FirstButtonState =
+                    {
+                        User: string
+                    }
+                [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+                [<RequireQualifiedAccess>]
+                module FirstButtonState =
+                    let create user = { User = user }
+                    let serialize x =
+                        let ser (x: FirstButtonState) =
+                            let raw = Json.ser x
+                            ShowList.showString raw
 
-                    x
-                    |> ComponentState.create
-                        viewId
-                        ComponentId.FirstButton
-                    |> ComponentState.serialize ser
+                        x
+                        |> ComponentState.create
+                            viewId
+                            ComponentId.FirstButton
+                        |> ComponentState.serialize ser
 
-                let deserialize: string -> Result<FirstButtonState, string> =
-                    Json.tryDes
+                    let deserialize: string -> Result<FirstButtonState, string> =
+                        Json.tryDes
 
-            type SecondButtonState =
-                {
-                    Number: int
-                }
-            [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-            [<RequireQualifiedAccess>]
-            module SecondButtonState =
-                let create num = { Number = num }
-                let serialize (x: SecondButtonState) =
-                    let ser (x: SecondButtonState) =
-                        let raw = Json.ser x
-                        ShowList.showString raw
+                type SecondButtonState =
+                    {
+                        Number: int
+                    }
+                [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+                [<RequireQualifiedAccess>]
+                module SecondButtonState =
+                    let create num = { Number = num }
+                    let serialize (x: SecondButtonState) =
+                        let ser (x: SecondButtonState) =
+                            let raw = Json.ser x
+                            ShowList.showString raw
 
-                    x
-                    |> ComponentState.create
-                        viewId
-                        ComponentId.SecondButton
-                    |> ComponentState.serialize ser
+                        x
+                        |> ComponentState.create
+                            viewId
+                            ComponentId.SecondButton
+                        |> ComponentState.serialize ser
 
-                let deserialize: string -> Result<SecondButtonState, string> =
-                    Json.tryDes
+                    let deserialize: string -> Result<SecondButtonState, string> =
+                        Json.tryDes
 
-            type Action =
-                | ConfirmMerry of FirstButtonState
-                | CancelMerry of SecondButtonState
+                [<RequireQualifiedAccess>]
+                type ComponentState =
+                    | FirstButton of FirstButtonState
+                    | SecondButton of SecondButtonState
 
-            let handlers: Map<ComponentId, string -> Result<Action, string>> =
-                let f deserialize handle str =
-                    match deserialize str with
-                    | Ok x ->
-                        Ok (handle x)
+                let handler: FormId * ComponentStateParsers<ComponentState> =
+                    let handlers: Extensions.Interaction.ComponentStateParsers<ComponentState> =
+                        let f deserialize handle (pos, str: string) =
+                            match deserialize str.[pos..] with
+                            | Ok x ->
+                                Ok (handle x)
 
-                    | Error(errorValue) ->
-                        sprintf "Views.MerryConformationView.Handler.ConfirmButtonHandler\n%s" errorValue
-                        |> Error
+                            | Error(errorValue) ->
+                                sprintf "Views.MerryConformationView.Handler.ConfirmButtonHandler\n%s" errorValue
+                                |> Error
+
+                        [
+                            int ComponentId.FirstButton, f FirstButtonState.deserialize ComponentState.FirstButton
+                            int ComponentId.SecondButton, f SecondButtonState.deserialize ComponentState.SecondButton
+                        ]
+                        |> Map.ofList
+
+                    viewId, handlers
+
+            module Form2 =
+                open Extensions.Interaction
+
+                let viewId: FormId = "form2Id"
+
+                type ComponentId =
+                    | FirstButton = 0
+                    | SecondButton = 1
+
+                type FirstButtonState =
+                    {
+                        User: string
+                    }
+                [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+                [<RequireQualifiedAccess>]
+                module FirstButtonState =
+                    let create user = { User = user }
+                    let serialize (x: FirstButtonState) =
+                        let ser x =
+                            let raw = Json.ser x
+                            ShowList.showString raw
+
+                        x
+                        |> ComponentState.create
+                            viewId
+                            ComponentId.FirstButton
+                        |> ComponentState.serialize ser
+
+                    let deserialize = Json.tryDes
+
+                type SecondButtonState =
+                    {
+                        Number: int
+                    }
+                [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+                [<RequireQualifiedAccess>]
+                module SecondButtonState =
+                    let create num = { Number = num }
+                    let serialize (x: SecondButtonState) =
+                        let ser x =
+                            let raw = Json.ser x
+                            ShowList.showString raw
+
+                        x
+                        |> ComponentState.create
+                            viewId
+                            ComponentId.SecondButton
+                        |> ComponentState.serialize ser
+
+                    let deserialize = Json.tryDes
+
+                [<RequireQualifiedAccessAttribute>]
+                type ComponentState =
+                    | FirstButton of FirstButtonState
+                    | SecondButton of SecondButtonState
+
+                let handler: FormId * ComponentStateParsers<ComponentState> =
+                    let handlers: ComponentStateParsers<ComponentState> =
+                        let f deserialize handle (pos, str: string) =
+                            match deserialize str.[pos..] with
+                            | Ok x ->
+                                Ok (handle x)
+
+                            | Error(errorValue) ->
+                                sprintf "Form2\n%s" errorValue
+                                |> Error
+                        [
+                            int ComponentId.FirstButton, f FirstButtonState.deserialize ComponentState.FirstButton
+                            int ComponentId.SecondButton, f SecondButtonState.deserialize ComponentState.SecondButton
+                        ]
+                        |> Map.ofList
+
+                    viewId, handlers
+
+            [<RequireQualifiedAccessAttribute>]
+            type FormComponentState =
+                | Form1 of Form1.ComponentState
+                | Form2 of Form2.ComponentState
+
+            let formsComponentState: Forms<FormComponentState> =
+                let f (act: 'RawAction -> FormComponentState) (formId: FormId, handlers: ComponentStateParsers<'RawAction>) : FormId * ComponentStateParsers<FormComponentState> =
+                    let handlers =
+                        handlers
+                        |> Map.map (fun _ dataParser ->
+                            fun arg -> dataParser arg |> Result.map act
+                        )
+
+                    formId, handlers
 
                 [
-                    ComponentId.FirstButton, f FirstButtonState.deserialize ConfirmMerry
-                    ComponentId.SecondButton, f SecondButtonState.deserialize CancelMerry
+                    f FormComponentState.Form1 Form1.handler
+                    f FormComponentState.Form2 Form2.handler
                 ]
                 |> Map.ofList
 
-        module Form2 =
-            open Extensions.Interaction
+        module SecondModule =
+            module Form3 =
+                open Extensions.Interaction
 
-            let viewId = "form2Id"
+                let viewId: FormId = "form3Id"
 
-            type ComponentId =
-                | FirstButton = 0
-                | SecondButton = 1
+                type ComponentId =
+                    | FirstButton = 0
 
-            type FirstButtonState =
-                {
-                    User: string
-                }
-            [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-            [<RequireQualifiedAccess>]
-            module FirstButtonState =
-                let create user = { User = user }
-                let serialize (x: FirstButtonState) =
-                    let ser x =
-                        let raw = Json.ser x
-                        ShowList.showString raw
+                type FirstButtonState =
+                    {
+                        Number: int
+                    }
+                [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+                [<RequireQualifiedAccess>]
+                module FirstButtonState =
+                    let create num = { Number = num }
+                    let serialize (x: FirstButtonState) =
+                        let ser x =
+                            let raw = Json.ser x
+                            ShowList.showString raw
 
-                    x
-                    |> ComponentState.create
-                        viewId
-                        ComponentId.FirstButton
-                    |> ComponentState.serialize ser
+                        x
+                        |> ComponentState.create
+                            viewId
+                            ComponentId.FirstButton
+                        |> ComponentState.serialize ser
 
-                let deserialize = Json.tryDes
+                    let deserialize = Json.tryDes
 
-            type SecondButtonState =
-                {
-                    Number: int
-                }
-            [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-            [<RequireQualifiedAccess>]
-            module SecondButtonState =
-                let create num = { Number = num }
-                let serialize (x: SecondButtonState) =
-                    let ser x =
-                        let raw = Json.ser x
-                        ShowList.showString raw
+                [<RequireQualifiedAccessAttribute>]
+                type ComponentState =
+                    | FirstButtonState of FirstButtonState
 
-                    x
-                    |> ComponentState.create
-                        viewId
-                        ComponentId.SecondButton
-                    |> ComponentState.serialize ser
+                let handler: FormId * ComponentStateParsers<ComponentState> =
+                    let handlers: ComponentStateParsers<ComponentState> =
+                        let f deserialize handle (pos, str: string) =
+                            match deserialize str.[pos..] with
+                            | Ok x ->
+                                Ok (handle x)
 
-                let deserialize = Json.tryDes
+                            | Error(errorValue) ->
+                                sprintf "Form3\n%s" errorValue
+                                |> Error
+                        [
+                            int ComponentId.FirstButton, f FirstButtonState.deserialize ComponentState.FirstButtonState
+                        ]
+                        |> Map.ofList
 
-            type Action =
-                | ConfirmMerry of FirstButtonState
-                | CancelMerry of SecondButtonState
+                    viewId, handlers
 
-            let handlers: Map<ComponentId, _ -> Result<Action, string>> =
-                let f deserialize handle str =
-                    match deserialize str with
-                    | Ok x ->
-                        Ok (handle x)
+            [<RequireQualifiedAccessAttribute>]
+            type FormComponentState =
+                | Form3State of Form3.ComponentState
 
-                    | Error(errorValue) ->
-                        sprintf "Views.MerryConformationView.Handler.ConfirmButtonHandler\n%s" errorValue
-                        |> Error
+            let formsComponentState: Forms<FormComponentState> =
+                let f (act: 'RawAction -> FormComponentState) (formId: FormId, handlers: ComponentStateParsers<'RawAction>) : FormId * ComponentStateParsers<FormComponentState> =
+                    let handlers =
+                        handlers
+                        |> Map.map (fun _ dataParser ->
+                            fun arg -> dataParser arg |> Result.map act
+                        )
+
+                    formId, handlers
+
                 [
-                    ComponentId.FirstButton, f FirstButtonState.deserialize ConfirmMerry
-                    ComponentId.SecondButton, f SecondButtonState.deserialize CancelMerry
+                    f FormComponentState.Form3State Form3.handler
                 ]
                 |> Map.ofList
-
-        type ViewAction =
-            | Form1Action of Form1.Action
-            | Form2Action of Form2.Action
-
-        let actions =
-            let inline f handlers act componentId str =
-                let componentId = enum componentId
-                match Map.tryFind componentId handlers with
-                | Some parse ->
-                    parse str
-                | None ->
-                    sprintf "Not found '%A' ComponentId" componentId
-                    |> Error
-                |> Result.map act
-
-            [
-                Form1.viewId, f Form1.handlers Form1Action
-                Form2.viewId, f Form2.handlers Form2Action
-            ]
-            |> Map.ofList
 
         [<Tests>]
         let builderTests =
-            let create input =
+            let create moduleForms input =
                 let result = ref None
                 let handleAction x =
                     result.Value <- Some (Ok x)
@@ -201,7 +280,7 @@ module InteractionTests =
                     result.Value <- Some (Error errMsg)
 
                 let isHandled =
-                    handleForms actions handleAction restartComponent input
+                    handleForms moduleForms restartComponent handleAction input
 
                 isHandled, result.Value
 
@@ -209,48 +288,72 @@ module InteractionTests =
                 testCase "form1First" <| fun () ->
                     let act =
                         let x =
-                            Form1.FirstButtonState.create "user"
-                            |> Form1.FirstButtonState.serialize
-                        create x
+                            FirstModule.Form1.FirstButtonState.create "user"
+                            |> FirstModule.Form1.FirstButtonState.serialize
+                        create FirstModule.formsComponentState x
 
-                    let exp: bool * option<Result<ViewAction,string>> =
-                        (true, Some (Ok (Form1Action (Form1.ConfirmMerry { User = "user" }))))
+                    let exp: bool * option<Result<_,string>> =
+                        (true, Some (Ok (FirstModule.FormComponentState.Form1 (FirstModule.Form1.ComponentState.FirstButton { User = "user" }))))
 
                     Assert.Equal("", exp, act)
 
                 testCase "form1Second" <| fun () ->
                     let act =
                         let x =
-                            Form1.SecondButtonState.create 42
-                            |> Form1.SecondButtonState.serialize
-                        create x
+                            FirstModule.Form1.SecondButtonState.create 42
+                            |> FirstModule.Form1.SecondButtonState.serialize
+                        create FirstModule.formsComponentState x
 
-                    let exp: bool * option<Result<ViewAction,string>> =
-                        (true, Some (Ok (Form1Action (Form1.CancelMerry { Number = 42 }))))
+                    let exp: bool * option<Result<_,string>> =
+                        (true, Some (Ok (FirstModule.FormComponentState.Form1 (FirstModule.Form1.ComponentState.SecondButton { Number = 42 }))))
 
                     Assert.Equal("", exp, act)
 
                 testCase "form2First" <| fun () ->
                     let act =
                         let x =
-                            Form2.FirstButtonState.create "user2"
-                            |> Form2.FirstButtonState.serialize
-                        create x
+                            FirstModule.Form2.FirstButtonState.create "user2"
+                            |> FirstModule.Form2.FirstButtonState.serialize
+                        create FirstModule.formsComponentState x
 
-                    let exp: bool * option<Result<ViewAction,string>> =
-                        (true, Some (Ok (Form2Action (Form2.ConfirmMerry { User = "user2" }))))
+                    let exp: bool * option<Result<_,string>> =
+                        (true, Some (Ok (FirstModule.FormComponentState.Form2 (FirstModule.Form2.ComponentState.FirstButton { User = "user2" }))))
 
                     Assert.Equal("", exp, act)
 
                 testCase "form2Second" <| fun () ->
                     let act =
                         let x =
-                            Form2.SecondButtonState.create 24
-                            |> Form2.SecondButtonState.serialize
-                        create x
+                            FirstModule.Form2.SecondButtonState.create 24
+                            |> FirstModule.Form2.SecondButtonState.serialize
+                        create FirstModule.formsComponentState x
 
-                    let exp: bool * option<Result<ViewAction,string>> =
-                        (true, Some (Ok (Form2Action (Form2.CancelMerry { Number = 24 }))))
+                    let exp: bool * option<Result<_,string>> =
+                        (true, Some (Ok (FirstModule.FormComponentState.Form2 (FirstModule.Form2.ComponentState.SecondButton { Number = 24 }))))
+
+                    Assert.Equal("", exp, act)
+
+                testCase "form3Fail" <| fun () ->
+                    let act =
+                        let x =
+                            FirstModule.Form1.SecondButtonState.create 24
+                            |> FirstModule.Form1.SecondButtonState.serialize
+                        create SecondModule.formsComponentState x
+
+                    let exp: bool * option<Result<_,string>> =
+                        (false, None)
+
+                    Assert.Equal("", exp, act)
+
+                testCase "form3First" <| fun () ->
+                    let act =
+                        let x =
+                            SecondModule.Form3.FirstButtonState.create 24
+                            |> SecondModule.Form3.FirstButtonState.serialize
+                        create SecondModule.formsComponentState x
+
+                    let exp: bool * option<Result<_,string>> =
+                        (true, Some (Ok (SecondModule.FormComponentState.Form3State (SecondModule.Form3.ComponentState.FirstButtonState { Number = 24 }))))
 
                     Assert.Equal("", exp, act)
             ]
