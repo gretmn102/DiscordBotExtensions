@@ -170,8 +170,32 @@ module Interaction =
         | ParseComponentStateError of parseComponentStateErrMsg: string
 
     type ComponentStateParser<'State> = (int32 * string) -> Result<'State, string>
+    [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+    [<RequireQualifiedAccess>]
+    module ComponentStateParser =
+        let parseMap (formId: FormId) (parseState: ComponentStateParser<'State>) map =
+            let f (pos, str) =
+                match parseState (pos, str) with
+                | Ok (x: 'State) ->
+                    Ok (map x)
+
+                | Error(errorValue) ->
+                    sprintf "%s\n%s" formId errorValue
+                    |> Error
+
+            f : ComponentStateParser<'NewState>
 
     type ComponentStateParsers<'State> = Map<RawComponentId, ComponentStateParser<'State>>
+
+    module Form =
+        let map (act: 'State -> 'NewState) (formId: FormId, handlers: ComponentStateParsers<'State>) : FormId * ComponentStateParsers<'NewState> =
+            let handlers =
+                handlers
+                |> Map.map (fun _ dataParser ->
+                    fun arg -> dataParser arg |> Result.map act
+                )
+
+            formId, handlers
 
     type Forms<'Action> = Map<FormId, ComponentStateParsers<'Action>>
 

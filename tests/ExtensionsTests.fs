@@ -88,18 +88,15 @@ module InteractionTests =
 
                 let handler: FormId * ComponentStateParsers<ComponentState> =
                     let handlers: Extensions.Interaction.ComponentStateParsers<ComponentState> =
-                        let f deserialize handle (pos, str: string) =
-                            match deserialize str.[pos..] with
-                            | Ok x ->
-                                Ok (handle x)
+                        let parse parseState map =
+                            let parseState (pos, str: string) =
+                                parseState str.[pos..]
 
-                            | Error(errorValue) ->
-                                sprintf "Views.MerryConformationView.Handler.ConfirmButtonHandler\n%s" errorValue
-                                |> Error
+                            ComponentStateParser.parseMap viewId parseState map
 
                         [
-                            int ComponentId.FirstButton, f FirstButtonState.deserialize ComponentState.FirstButton
-                            int ComponentId.SecondButton, f SecondButtonState.deserialize ComponentState.SecondButton
+                            int ComponentId.FirstButton, parse FirstButtonState.deserialize ComponentState.FirstButton
+                            int ComponentId.SecondButton, parse SecondButtonState.deserialize ComponentState.SecondButton
                         ]
                         |> Map.ofList
 
@@ -163,17 +160,15 @@ module InteractionTests =
 
                 let handler: FormId * ComponentStateParsers<ComponentState> =
                     let handlers: ComponentStateParsers<ComponentState> =
-                        let f deserialize handle (pos, str: string) =
-                            match deserialize str.[pos..] with
-                            | Ok x ->
-                                Ok (handle x)
+                        let parse parseState map =
+                            let parseState (pos, str: string) =
+                                parseState str.[pos..]
 
-                            | Error(errorValue) ->
-                                sprintf "Form2\n%s" errorValue
-                                |> Error
+                            ComponentStateParser.parseMap viewId parseState map
+
                         [
-                            int ComponentId.FirstButton, f FirstButtonState.deserialize ComponentState.FirstButton
-                            int ComponentId.SecondButton, f SecondButtonState.deserialize ComponentState.SecondButton
+                            int ComponentId.FirstButton, parse FirstButtonState.deserialize ComponentState.FirstButton
+                            int ComponentId.SecondButton, parse SecondButtonState.deserialize ComponentState.SecondButton
                         ]
                         |> Map.ofList
 
@@ -185,18 +180,9 @@ module InteractionTests =
                 | Form2 of Form2.ComponentState
 
             let formsComponentState: Forms<FormComponentState> =
-                let f (act: 'RawAction -> FormComponentState) (formId: FormId, handlers: ComponentStateParsers<'RawAction>) : FormId * ComponentStateParsers<FormComponentState> =
-                    let handlers =
-                        handlers
-                        |> Map.map (fun _ dataParser ->
-                            fun arg -> dataParser arg |> Result.map act
-                        )
-
-                    formId, handlers
-
                 [
-                    f FormComponentState.Form1 Form1.handler
-                    f FormComponentState.Form2 Form2.handler
+                    Form.map FormComponentState.Form1 Form1.handler
+                    Form.map FormComponentState.Form2 Form2.handler
                 ]
                 |> Map.ofList
 
@@ -236,16 +222,14 @@ module InteractionTests =
 
                 let handler: FormId * ComponentStateParsers<ComponentState> =
                     let handlers: ComponentStateParsers<ComponentState> =
-                        let f deserialize handle (pos, str: string) =
-                            match deserialize str.[pos..] with
-                            | Ok x ->
-                                Ok (handle x)
+                        let parse parseState map =
+                            let parseState (pos, str: string) =
+                                parseState str.[pos..]
 
-                            | Error(errorValue) ->
-                                sprintf "Form3\n%s" errorValue
-                                |> Error
+                            ComponentStateParser.parseMap viewId parseState map
+
                         [
-                            int ComponentId.FirstButton, f FirstButtonState.deserialize ComponentState.FirstButtonState
+                            int ComponentId.FirstButton, parse FirstButtonState.deserialize ComponentState.FirstButtonState
                         ]
                         |> Map.ofList
 
@@ -256,17 +240,8 @@ module InteractionTests =
                 | Form3State of Form3.ComponentState
 
             let formsComponentState: Forms<FormComponentState> =
-                let f (act: 'RawAction -> FormComponentState) (formId: FormId, handlers: ComponentStateParsers<'RawAction>) : FormId * ComponentStateParsers<FormComponentState> =
-                    let handlers =
-                        handlers
-                        |> Map.map (fun _ dataParser ->
-                            fun arg -> dataParser arg |> Result.map act
-                        )
-
-                    formId, handlers
-
                 [
-                    f FormComponentState.Form3State Form3.handler
+                    Form.map FormComponentState.Form3State Form3.handler
                 ]
                 |> Map.ofList
 
