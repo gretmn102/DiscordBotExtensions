@@ -1,0 +1,43 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "RunExampleBot",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "fake",
+                "build",
+                "-t",
+                "RunExampleBot"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "RunTests",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "fake",
+                "build",
+                "-t",
+                "RunTests"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "PublishToGitlab",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "fake",
+                "build",
+                "-t",
+                "PublishToGitlab"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
