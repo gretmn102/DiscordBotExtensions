@@ -34,6 +34,8 @@ let exampleBotDir = Path.getDirectory exampleBotPath
 
 
 let deployDir = Path.getFullName "./deploy"
+
+let release = ReleaseNotes.load "RELEASE_NOTES.md"
 // --------------------------------------------------------------------------------------
 // Helpers
 // --------------------------------------------------------------------------------------
@@ -42,10 +44,39 @@ open Fake.DotNet
 let dotnet cmd workingDir =
     let result = DotNet.exec (DotNet.Options.withWorkingDirectory workingDir) cmd ""
     if result.ExitCode <> 0 then failwithf "'dotnet %s' failed in %s" cmd workingDir
+
+module XmlText =
+    let escape rawText =
+        let doc = new System.Xml.XmlDocument()
+        let node = doc.CreateElement("root")
+        node.InnerText <- rawText
+        node.InnerXml
 // --------------------------------------------------------------------------------------
 // Targets
 // --------------------------------------------------------------------------------------
 Target.create "Clean" (fun _ -> Shell.cleanDir deployDir)
+
+Target.create "Meta" (fun _ ->
+    [
+        "<Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">"
+        "<ItemGroup>"
+        "  <PackageReference Include=\"Microsoft.SourceLink.GitHub\" Version=\"1.0.0\" PrivateAssets=\"All\"/>"
+        "</ItemGroup>"
+        "<PropertyGroup>"
+        "  <EmbedUntrackedSources>true</EmbedUntrackedSources>"
+        "  <PackageProjectUrl>https://github.com/gretmn102/DiscordBotExtensions</PackageProjectUrl>"
+        "  <PackageLicenseExpression>MIT</PackageLicenseExpression>"
+        "  <RepositoryUrl>https://github.com/gretmn102/DiscordBotExtensions.git</RepositoryUrl>"
+        sprintf "  <PackageReleaseNotes>%s</PackageReleaseNotes>"
+            (String.concat "\n" release.Notes |> XmlText.escape)
+        "  <PackageTags>discord;fsharp</PackageTags>"
+        "  <Authors>Fering</Authors>"
+        sprintf "  <Version>%s</Version>" (string release.SemVer)
+        "</PropertyGroup>"
+        "</Project>"
+    ]
+    |> File.write false "Directory.Build.props"
+)
 
 Target.create "Build" (fun _ ->
     mainProjDir
@@ -98,6 +129,7 @@ open Fake.Core.TargetOperators
   ==> "Deploy"
 
 "Clean"
+  ==> "Meta"
   ==> "Pack"
   ==> "PublishToGitlab"
 

@@ -392,5 +392,6 @@ paket-files/
 /Output/
 /.ionide/
 /deploy/
+/Directory.Build.props
 
 .env

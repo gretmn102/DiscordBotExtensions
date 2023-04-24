@@ -5,12 +5,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>DiscordBotExtensions</PackageId>
-    <Version>0.7.0</Version>
-    <Authors>Fering</Authors>
-    <Company>Home</Company>
-    <PackageDescription>FSharp extensions for DSharpPlus</PackageDescription>
-    <RepositoryUrl>https://github.com/gretmn102/FsharpMyExtension</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="DiscordEmojiSheet.txt" />
