@@ -1,3 +1,6 @@
+## 0.8.0
+* improvement `handleForms`
+
 ## 0.7.0
 * feat: add `Interaction.handleForms`
 
