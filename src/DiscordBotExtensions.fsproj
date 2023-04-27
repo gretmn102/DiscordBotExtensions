@@ -6,6 +6,10 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>DiscordBotExtensions</PackageId>
   </PropertyGroup>
+  <Target Name="SpicNSpan" AfterTargets="Clean">
+    <RemoveDir Directories="$(BaseOutputPath)" />
+    <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+  </Target>
   <ItemGroup>
     <EmbeddedResource Include="DiscordEmojiSheet.txt" />
     <Compile Include="Types.fs" />
