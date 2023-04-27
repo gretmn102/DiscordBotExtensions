@@ -8,8 +8,9 @@ open Types
 
 let botEventId = new EventId(42, "Bot-Event")
 
-let initBotModules () =
+let initBotModules client restClient =
     [|
+        MvcExample.Main.create client restClient
         SimpleModule.Main.create ()
     |]
 
@@ -25,21 +26,22 @@ let main argv =
             next token
 
     getBotToken <| fun token ->
-    let config = DSharpPlus.DiscordConfiguration()
+    let config = DiscordConfiguration()
 
     config.set_Token token
-    config.set_TokenType DSharpPlus.TokenType.Bot
+    config.set_TokenType TokenType.Bot
     config.set_AutoReconnect true
     config.set_Intents (
-        DSharpPlus.DiscordIntents.AllUnprivileged
-        ||| DSharpPlus.DiscordIntents.GuildMembers
-        ||| DSharpPlus.DiscordIntents.GuildPresences
-        ||| DSharpPlus.DiscordIntents.MessageContents
+        DiscordIntents.AllUnprivileged
+        ||| DiscordIntents.GuildMembers
+        ||| DiscordIntents.GuildPresences
+        ||| DiscordIntents.MessageContents
     )
 
-    let client = new DSharpPlus.DiscordClient(config)
+    let client = new DiscordClient(config)
+    let restClient = new DiscordRestClient(config)
 
-    let botModules = initBotModules ()
+    let botModules = initBotModules client restClient
 
     let prefix = "."
 
@@ -80,7 +82,7 @@ let main argv =
         let status =
             "Test"
 
-        let activity = DSharpPlus.Entities.DiscordActivity(status)
+        let activity = Entities.DiscordActivity(status)
         awaiti <| client.UpdateStatusAsync(activity)
 
         Task.CompletedTask
