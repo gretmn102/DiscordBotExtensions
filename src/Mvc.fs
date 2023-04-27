@@ -386,3 +386,67 @@ module Controller =
             member _.UpdateMessage(messageId: MessageId) (b: Entities.DiscordMessageBuilder): unit =
                 awaiti <| restClient.EditMessageAsync(e.Interaction.ChannelId, messageId, b)
         }
+
+    let createMessageApi interpView returnError (restClient: DiscordRestClient) (e: EventArgs.MessageCreateEventArgs) =
+        { new Api<'View, 'Next> with
+            member _.GetCurrentMessageId(): ChannelId option =
+                Some e.Message.Id
+
+            member _.CreateMessage(referenceMessageIdOpt: MessageId option) (b: Entities.DiscordMessageBuilder): MessageId option =
+                referenceMessageIdOpt
+                |> Option.iter (fun messageId ->
+                    b.WithReply(messageId, true)
+                    |> ignore
+                )
+
+                let message = await <| e.Channel.SendMessageAsync(b)
+                Some message.Id
+
+            member _.GetCurrentChannelId(): ChannelId =
+                e.Channel.Id
+
+            member _.GetInteractionData(): Model.InteractionData option =
+                None
+
+            member _.GetMemberAsync(userId: UserId): System.Threading.Tasks.Task<Entities.DiscordMember> =
+                e.Guild.GetMemberAsync userId
+
+            member _.GetReference(): MessageId option =
+                e.Message.Reference
+                |> Option.ofObj
+                |> Option.map (fun r -> r.Message.Id)
+
+            member _.InterpView(arg1: 'View): Entities.DiscordMessageBuilder =
+                interpView arg1
+
+            member _.RemoveCurrent(interactionDataOpt: Model.InteractionData option): unit =
+                match interactionDataOpt with
+                | Some interactionData ->
+                    try
+                        awaiti <| restClient.DeleteWebhookMessageAsync(interactionData.Id, interactionData.Token, e.Message.Id)
+                    with e ->
+                        ()
+                | None ->
+                    try
+                        awaiti <| e.Message.DeleteAsync()
+                    with e ->
+                        ()
+
+            member _.ResponseCreate(isEphemeral: bool) (b: Entities.DiscordMessageBuilder): MessageId option =
+                // TODO: implemented `isEmphemeral`
+
+                b.WithReply(e.Message.Id, true)
+                |> ignore
+
+                let message = await <| e.Channel.SendMessageAsync(b)
+                Some message.Id
+
+            member _.ResponseUpdate(b: Entities.DiscordMessageBuilder): unit =
+                awaiti <| e.Message.ModifyAsync(b)
+
+            member _.ReturnError(state: State): 'Next * State =
+                returnError state
+
+            member _.UpdateMessage(messageId: MessageId) (b: Entities.DiscordMessageBuilder): unit =
+                awaiti <| restClient.EditMessageAsync(e.Channel.Id, messageId, b)
+        }
