@@ -17,6 +17,8 @@ NUGET
       System.Net.WebSockets.Client (>= 4.3.2)
       System.Runtime.InteropServices.RuntimeInformation (>= 4.3)
       System.Threading.Channels (>= 5.0)
+    DSharpPlus.Rest (4.3)
+      DSharpPlus (>= 4.3)
     Emzi0767.Common (2.6.2)
       System.Collections.Immutable (>= 5.0)
       System.Memory (>= 4.5.4)

@@ -16,6 +16,7 @@
     <Compile Include="Api.fs" />
     <Compile Include="Db.fs" />
     <Compile Include="BotModule.fs" />
+    <Compile Include="Mvc.fs" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>
