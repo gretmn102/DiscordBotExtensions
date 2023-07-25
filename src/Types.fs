@@ -171,14 +171,3 @@ let getEnvironmentVariable varName =
     |> Option.defaultWith (fun () ->
         failwithf "Environment variable `%s` is not set!" varName
     )
-
-open MongoDB.Driver
-
-module IMongoCollection =
-    let isEmpty (collection: IMongoCollection<_>) =
-        let countOptions =
-            CountOptions(
-                Limit = System.Nullable(1L)
-            )
-
-        0L = collection.CountDocuments((fun _ -> true), countOptions)

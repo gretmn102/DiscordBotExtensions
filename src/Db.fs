@@ -5,8 +5,6 @@ open MongoDB.Bson.Serialization
 open Newtonsoft.Json
 open FsharpMyExtension
 
-open Types
-
 module MongoCollection =
     /// Same as `BulkWrite` but allows an empty sequence to avoid the exception:
     ///
@@ -19,6 +17,14 @@ module MongoCollection =
             :> BulkWriteResult<'a>
         else
             collection.BulkWrite requests
+
+    let isEmpty (collection: IMongoCollection<_>) =
+        let countOptions =
+            CountOptions(
+                Limit = System.Nullable(1L)
+            )
+
+        0L = collection.CountDocuments((fun _ -> true), countOptions)
 
 type MapSerializer<'Key, 'Value when 'Key : comparison>() =
     inherit Serializers.SerializerBase<Map<'Key, 'Value>>()
@@ -148,7 +154,7 @@ module CommonDb =
         let inline init (createData: 'Id -> Data<'Id, ^Version, 'MainData>) convertToVersion collectionName (db: IMongoDatabase): GuildData<'Id, ^Version, 'MainData> =
             let collection = db.GetCollection<BsonDocument>(collectionName)
 
-            if IMongoCollection.isEmpty collection then
+            if MongoCollection.isEmpty collection then
                 {
                     Cache = Map.empty
                     Collection = collection
