@@ -1,4 +1,4 @@
-module Db
+module DiscordBotExtensions.Db
 open MongoDB.Driver
 open MongoDB.Bson
 open MongoDB.Bson.Serialization

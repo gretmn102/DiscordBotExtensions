@@ -1,4 +1,4 @@
-module Extensions
+module DiscordBotExtensions.Extensions
 open FsharpMyExtension
 open FsharpMyExtension.Either
 open DSharpPlus

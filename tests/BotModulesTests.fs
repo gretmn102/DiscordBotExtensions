@@ -1,7 +1,7 @@
 module BotModulesTests
 open Fuchu
 
-open Shared.BotModule
+open DiscordBotExtensions
 open Shared.BotModule.CommandParser
 
 type Command =

@@ -3,7 +3,8 @@ module MvcExample.Main
 open FsharpMyExtension
 open DSharpPlus
 
-open Shared
+open DiscordBotExtensions
+open DiscordBotExtensions.Shared
 open Types
 
 open View

@@ -1,6 +1,6 @@
 module MvcExample.Model
 open FsharpMyExtension
-open Mvc.Model
+open DiscordBotExtensions.Mvc.Model
 
 [<RequireQualifiedAccessAttribute;Struct>]
 type ViewCmd =

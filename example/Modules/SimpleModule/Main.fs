@@ -2,8 +2,8 @@ module SimpleModule.Main
 open FsharpMyExtension
 open DSharpPlus
 
-open Shared
-open Types
+open DiscordBotExtensions.Shared
+open DiscordBotExtensions.Types
 
 type Action =
     | Hello of name: string
@@ -14,7 +14,7 @@ module Action =
     module Parser =
         open FParsec
 
-        open DiscordMessage.Parser
+        open DiscordBotExtensions.DiscordMessage.Parser
 
         type 'a Parser = Parser<'a, unit>
 

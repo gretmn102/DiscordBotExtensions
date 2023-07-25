@@ -1,4 +1,4 @@
-module Types
+module DiscordBotExtensions.Types
 open FsharpMyExtension
 open FsharpMyExtension.Either
 

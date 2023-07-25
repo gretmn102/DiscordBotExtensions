@@ -1,6 +1,7 @@
 module StandardDiscordEmojisTests
 open Fuchu
 
+open DiscordBotExtensions
 open Types.StandartDiscordEmoji
 
 [<Tests>]

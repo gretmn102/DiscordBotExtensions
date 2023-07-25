@@ -1,7 +1,7 @@
-namespace DiscordMessage
+namespace DiscordBotExtensions.DiscordMessage
 open FsharpMyExtension
 
-open Types
+open DiscordBotExtensions.Types
 
 type CustomEmoji =
     {

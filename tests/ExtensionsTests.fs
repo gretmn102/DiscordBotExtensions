@@ -2,8 +2,10 @@ module ExtensionsTests
 open Fuchu
 open FsharpMyExtension
 
+open DiscordBotExtensions
+
 module InteractionTests =
-    open Extensions.Interaction
+    open DiscordBotExtensions.Extensions.Interaction
 
     module SerializeTests =
         type ComponentId =
@@ -29,7 +31,7 @@ module InteractionTests =
     module FormsHandleTests =
         module FirstModule =
             module Form1 =
-                open Extensions.Interaction
+                open DiscordBotExtensions.Extensions.Interaction
 
                 let viewId = "form1Id"
 

@@ -1,9 +1,9 @@
-module Shared.MessageTemplate
+module DiscordBotExtensions.Shared.MessageTemplate
 open FParsec
 open FsharpMyExtension
 open FsharpMyExtension.Either
 
-open Types
+open DiscordBotExtensions
 open DiscordMessage.Parser
 
 type 'a Parser = Parser<'a, unit>

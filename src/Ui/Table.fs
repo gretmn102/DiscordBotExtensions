@@ -1,7 +1,8 @@
-module Shared.Ui.Table
+module DiscordBotExtensions.Shared.Ui.Table
 open DSharpPlus
 open FsharpMyExtension
 
+open DiscordBotExtensions
 open Types
 open Extensions
 

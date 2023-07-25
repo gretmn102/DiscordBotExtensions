@@ -1,4 +1,4 @@
-module Mvc
+module DiscordBotExtensions.Mvc
 open DSharpPlus
 open Types
 
