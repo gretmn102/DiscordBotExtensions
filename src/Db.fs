@@ -3,16 +3,17 @@ open MongoDB.Driver
 open MongoDB.Bson
 open MongoDB.Bson.Serialization
 open Newtonsoft.Json
+open FsharpMyExtension
 
 open Types
 
-type IMongoCollection<'a> with
+module MongoCollection =
     /// Same as `BulkWrite` but allows an empty sequence to avoid the exception:
     ///
     /// ```
     /// System.ArgumentException: Must contain at least 1 request. (Parameter 'requests')
-    /// ```
-    member collection.bulkWriteEmpty(requests: seq<WriteModel<'a>>) =
+    /// ``
+    let bulkWriteEmpty (requests: seq<WriteModel<'a>>) (collection: IMongoCollection<'a>) =
         if Seq.isEmpty requests then
             BulkWriteResult.Unacknowledged(0, Seq.empty)
             :> BulkWriteResult<'a>
@@ -121,7 +122,7 @@ module CommonDb =
                 | _ ->
                     failwithf "%A write model not implemented!" writeModelType
             )
-            |> collection.bulkWriteEmpty
+            |> flip MongoCollection.bulkWriteEmpty collection
 
         let removeById (id: 'Id) (collection: Collection) =
             let filter = createFilterById id
@@ -133,7 +134,7 @@ module CommonDb =
                 let filter = createFilterById id
                 DeleteOneModel(filter) :> WriteModel<_>
             )
-            |> collection.bulkWriteEmpty
+            |> flip MongoCollection.bulkWriteEmpty collection
 
     type GuildData<'Id, 'Version, 'MainData when 'Id : comparison and 'Version: enum<int>> =
         {
