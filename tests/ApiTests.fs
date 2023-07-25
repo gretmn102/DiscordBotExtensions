@@ -1,7 +1,7 @@
 module ApiTests
 open Fuchu
 
-open DiscordBotExtensions.Shared.Api
+open DiscordBotExtensions.Api
 
 [<Tests>]
 let snowflakeTests =

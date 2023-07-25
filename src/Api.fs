@@ -1,4 +1,4 @@
-namespace DiscordBotExtensions.Shared.Api
+namespace DiscordBotExtensions.Api
 open Newtonsoft.Json.Serialization
 open Newtonsoft.Json
 

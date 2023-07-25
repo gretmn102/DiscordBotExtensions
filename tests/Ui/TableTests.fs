@@ -1,7 +1,7 @@
 module Ui.TableTests
 open Fuchu
 
-open DiscordBotExtensions.Shared.Ui.Table
+open DiscordBotExtensions.Ui.Table
 
 type SortBy =
     | SortByName = 0

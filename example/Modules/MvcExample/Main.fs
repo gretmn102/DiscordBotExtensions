@@ -4,11 +4,10 @@ open FsharpMyExtension
 open DSharpPlus
 
 open DiscordBotExtensions
-open DiscordBotExtensions.Shared
-open Types
+open DiscordBotExtensions.Types
+open DiscordBotExtensions.Extensions
 
 open View
-open Extensions
 
 type Action =
     | Hello of name: string

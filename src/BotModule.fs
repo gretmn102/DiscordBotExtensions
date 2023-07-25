@@ -1,11 +1,10 @@
-module DiscordBotExtensions.Shared.BotModule
+module DiscordBotExtensions.BotModule
 open DSharpPlus
 open FParsec
 open System.Threading.Tasks
 open FsharpMyExtension
 open Microsoft.Extensions.Logging
 
-open DiscordBotExtensions
 open Types
 open Extensions
 

@@ -2,7 +2,7 @@ module SimpleModule.Main
 open FsharpMyExtension
 open DSharpPlus
 
-open DiscordBotExtensions.Shared
+open DiscordBotExtensions
 open DiscordBotExtensions.Types
 
 type Action =
