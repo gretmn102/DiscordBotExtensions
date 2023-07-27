@@ -208,7 +208,7 @@ let create (client: DiscordClient) (restClient: DiscordRestClient) =
             reconnect
         |]
 
-    { BotModule.empty with
+    { BotModule.BotModule.empty with
         InteractionCommands =
             Some commands
 

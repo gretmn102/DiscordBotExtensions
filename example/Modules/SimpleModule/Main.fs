@@ -56,7 +56,7 @@ let request = function
             awaiti <| client.ReconnectAsync(true)
 
 let create () =
-    { BotModule.empty with
+    { BotModule.BotModule.empty with
         MessageCreateEventHandleExclude =
             let exec: _ Action.Parser.Parser =
                 Action.Parser.start (fun (client: DiscordClient, e: EventArgs.MessageCreateEventArgs) msg ->
