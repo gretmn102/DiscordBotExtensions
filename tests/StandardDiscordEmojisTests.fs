@@ -1,12 +1,11 @@
 module StandardDiscordEmojisTests
 open Fuchu
 
-open DiscordBotExtensions
-open Types.StandartDiscordEmoji
+open DiscordBotExtensions.StandardDiscordEmojisContainer
 
 [<Tests>]
 let StandardDiscordEmojisTests =
-    testList "StandardDiscordEmojisTests" [
+    testList "StandardDiscordEmojisContainerTests" [
         testCase "base" <| fun () ->
             // just test that resources are loaded correctly
             let exp =

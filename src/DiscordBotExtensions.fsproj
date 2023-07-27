@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -12,6 +12,7 @@
   </Target>
   <ItemGroup>
     <EmbeddedResource Include="DiscordEmojiSheet.txt" />
+    <Compile Include="StandardDiscordEmojisContainer.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="DiscordMessage.fs" />
     <Compile Include="Extensions.fs" />
