@@ -5,7 +5,7 @@ open FsharpMyExtension.Either
 let emojiSheetMapWidth = 42
 
 let emojiSheetMap =
-    let filename = "DiscordEmojiSheet.txt"
+    let filename = "StandardDiscordEmojisSheet.txt"
     let content =
         use content =
             System.Reflection.Assembly.GetExecutingAssembly()

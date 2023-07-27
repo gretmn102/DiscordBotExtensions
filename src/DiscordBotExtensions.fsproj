@@ -11,7 +11,7 @@
     <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
   </Target>
   <ItemGroup>
-    <EmbeddedResource Include="DiscordEmojiSheet.txt" />
+    <EmbeddedResource Include="StandardDiscordEmojisSheet.txt" />
     <Compile Include="StandardDiscordEmojisContainer.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="DiscordMessage.fs" />
