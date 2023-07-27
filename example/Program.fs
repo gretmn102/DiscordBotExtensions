@@ -19,7 +19,7 @@ let initBotModules client restClient =
 let main argv =
     let getBotToken next =
         let tokenEnvVar = "BotToken"
-        match tryGetEnvironmentVariable tokenEnvVar with
+        match EnvironmentExt.tryGetEnvironmentVariable tokenEnvVar with
         | None ->
             printfn "Environment variable `%s` is not set!" tokenEnvVar
             1

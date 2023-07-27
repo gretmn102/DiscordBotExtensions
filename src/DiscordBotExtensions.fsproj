@@ -13,6 +13,7 @@
   <ItemGroup>
     <EmbeddedResource Include="StandardDiscordEmojisSheet.txt" />
     <Compile Include="StandardDiscordEmojisContainer.fs" />
+    <Compile Include="EnvironmentExt.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="DiscordMessage.fs" />
     <Compile Include="Extensions.fs" />
