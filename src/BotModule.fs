@@ -1,4 +1,4 @@
-module DiscordBotExtensions.BotModule
+namespace DiscordBotExtensions
 open DSharpPlus
 open FParsec
 open System.Threading.Tasks

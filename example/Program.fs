@@ -47,7 +47,7 @@ let main argv =
     let prefix = "."
 
     botModules
-    |> BotModule.BotModule.bindToClientsEvents
+    |> BotModule.bindToClientsEvents
         prefix
         (fun client e ->
             let b = Entities.DiscordMessageBuilder()
