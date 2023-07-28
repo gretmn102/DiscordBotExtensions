@@ -1,7 +1,7 @@
 module BotModulesTests
 open Fuchu
 
-open DiscordBotExtensions.CommandParser
+open DiscordBotExtensions.PrefixCommandParser
 
 type Command =
     | Hello of string

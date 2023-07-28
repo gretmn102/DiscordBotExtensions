@@ -12,7 +12,7 @@ type 'a Parser = Parser<'a, unit>
 
 type MessageCreateEventHandler = ((DiscordClient * EventArgs.MessageCreateEventArgs) -> unit)
 
-module CommandParser =
+module PrefixCommandParser =
     open DiscordMessage.Parser
 
     type Cmd<'Command> =
@@ -96,8 +96,8 @@ module BotModule =
                 |> Array.choose (fun x ->
                     x.MessageCreateEventHandleExclude
                 )
-                |> CommandParser.initCommandParser
-            CommandParser.start prefix botId pcommands
+                |> PrefixCommandParser.initCommandParser
+            PrefixCommandParser.start prefix botId pcommands
 
         client.add_Ready (Emzi0767.Utilities.AsyncEventHandler (fun client e ->
             parseExcludeCommands := Some (createParseExcludeCommands client.CurrentUser.Id)
@@ -157,12 +157,12 @@ module BotModule =
                     match parseExcludeCommands e.Message.Content with
                     | Result.Ok res ->
                         match res with
-                        | CommandParser.Pass -> ()
-                        | CommandParser.Unknown ->
+                        | PrefixCommandParser.Pass -> ()
+                        | PrefixCommandParser.Unknown ->
                             unknownCommandHandle client e
-                        | CommandParser.Empty ->
+                        | PrefixCommandParser.Empty ->
                             emptyMentionHandle client e
-                        | CommandParser.Command exec ->
+                        | PrefixCommandParser.Command exec ->
                             exec (client, e)
 
                     | Result.Error x ->
