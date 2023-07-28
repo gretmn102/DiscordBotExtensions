@@ -79,6 +79,27 @@ type MessagePath =
             ChannelId = this.ChannelId
         }
 
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+[<RequireQualifiedAccess>]
+module MessagePath =
+    [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+    [<RequireQualifiedAccess>]
+    module Parser =
+        open FParsec
+
+        let parser<'u> : Parser<_, 'u> =
+            pipe3
+                (skipString "https://discord.com/channels/" >>. puint64 .>> pchar '/')
+                (puint64 .>> pchar '/')
+                puint64
+                (fun guildId channelId messageId ->
+                    {
+                        GuildId = guildId
+                        ChannelId = channelId
+                        MessageId = messageId
+                    }
+                )
+
 module Parser =
     open FParsec
 
@@ -112,18 +133,7 @@ module Parser =
     let pchannelMentionTarget<'u> (channelId: ChannelId): Parser<_, 'u> =
         pchannelMentionTargetStr (string channelId)
 
-    let pmessagePath<'u> : Parser<_, 'u> =
-        pipe3
-            (skipString "https://discord.com/channels/" >>. puint64 .>> pchar '/')
-            (puint64 .>> pchar '/')
-            puint64
-            (fun guildId channelId messageId ->
-                {
-                    GuildId = guildId
-                    ChannelId = channelId
-                    MessageId = messageId
-                }
-            )
+    let pmessagePath<'u> : Parser<_, 'u> = MessagePath.Parser.parser<'u>
 
     let pemoji<'u> : Parser<_, 'u> =
         UnicodeOrCustomEmoji.Parser.parser<'u>
