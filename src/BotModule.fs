@@ -12,6 +12,7 @@ type 'a Parser = Parser<'a, unit>
 
 type MessageCreateEventHandler = ((DiscordClient * EventArgs.MessageCreateEventArgs) -> unit)
 
+[<RequireQualifiedAccess>]
 type PrefixCommandParser<'Command> =
     | Empty
     | Unknown
@@ -29,13 +30,17 @@ module PrefixCommandParser =
 
     let start prefix botId (pcommand: _ Parser) =
         let prefix = pstring prefix
-        let pcommand = pcommand |>> Command
+        let pcommand = pcommand |>> PrefixCommandParser.Command
         let p =
             (attempt (puserMentionTarget botId) >>. spaces
-             >>. ((prefix >>. (pcommand <|>% Unknown)) <|> pcommand <|> (eof >>% Empty) <|>% Unknown)
+             >>. (
+                (prefix >>. (pcommand <|>% PrefixCommandParser.Unknown))
+                <|> pcommand
+                <|> (eof >>% PrefixCommandParser.Empty)
+                <|>% PrefixCommandParser.Unknown)
             )
-            <|> (prefix >>. (pcommand <|>% Unknown))
-            <|>% Pass
+            <|> (prefix >>. (pcommand <|>% PrefixCommandParser.Unknown))
+            <|>% PrefixCommandParser.Pass
 
         FParsecExt.runResult p
 

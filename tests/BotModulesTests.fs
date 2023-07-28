@@ -36,35 +36,35 @@ let commandParserTests =
 
     testList "commandParserTests" [
         createTest
-            (Ok Pass)
+            (Ok PrefixCommandParser.Pass)
             "some text"
 
         createTest
-            (Ok Pass)
+            (Ok PrefixCommandParser.Pass)
             "ping"
 
         createTest
-            (Ok (Command Ping))
+            (Ok (PrefixCommandParser.Command Ping))
             ".ping"
 
         createTest
-            (Ok Empty)
+            (Ok PrefixCommandParser.Empty)
             "<@42>"
 
         createTest
-            (Ok Unknown)
+            (Ok PrefixCommandParser.Unknown)
             "<@42> unknown"
 
         createTest
-            (Ok Unknown)
+            (Ok PrefixCommandParser.Unknown)
             "<@42> .unknown"
 
         createTest
-            (Ok (Command Ping))
+            (Ok (PrefixCommandParser.Command Ping))
             "<@42> ping"
 
         createTest
-            (Ok (Command Ping))
+            (Ok (PrefixCommandParser.Command Ping))
             "<@42> .ping"
 
         let errMsg =
@@ -82,6 +82,6 @@ let commandParserTests =
             ".answer"
 
         createTest
-            (Ok (Command (Answer 42)))
+            (Ok (PrefixCommandParser.Command (Answer 42)))
             ".answer 42"
     ]
