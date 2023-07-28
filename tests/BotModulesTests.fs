@@ -1,7 +1,7 @@
 module BotModulesTests
 open Fuchu
 
-open DiscordBotExtensions.PrefixCommandParser
+open DiscordBotExtensions
 
 type Command =
     | Hello of string
@@ -14,7 +14,7 @@ module Command =
         open FParsec
 
         let parse =
-            initCommandParser [
+            PrefixCommandParser.initCommandParser [
                 pstringCI "hello" >>. many1Satisfy (fun _ -> true) |>> Hello
                 pstringCI "ping" >>% Ping
                 pstringCI "answer" >>. spaces >>. pint32 |>> Answer
@@ -25,7 +25,7 @@ let commandParserTests =
     let prefix = "."
     let botId = 42UL
 
-    let parse = start prefix botId Command.Parser.parse
+    let parse = PrefixCommandParser.start prefix botId Command.Parser.parse
 
     let botMention = sprintf "<@%d>" botId
 

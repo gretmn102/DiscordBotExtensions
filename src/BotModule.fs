@@ -12,15 +12,17 @@ type 'a Parser = Parser<'a, unit>
 
 type MessageCreateEventHandler = ((DiscordClient * EventArgs.MessageCreateEventArgs) -> unit)
 
+type PrefixCommandParser<'Command> =
+    | Empty
+    | Unknown
+    | Pass
+
+    | Command of 'Command
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+[<RequireQualifiedAccess>]
 module PrefixCommandParser =
     open DiscordMessage.Parser
-
-    type Cmd<'Command> =
-        | Empty
-        | Unknown
-        | Pass
-
-        | Command of 'Command
 
     let initCommandParser (commands: Parser<_> seq): _ Parser =
         choice commands
