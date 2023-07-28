@@ -16,26 +16,6 @@ type ChannelPath =
         ChannelId: ChannelId
     }
 
-type MessagePath =
-    {
-        GuildId: GuildId
-        ChannelId: ChannelId
-        MessageId: MessageId
-    }
-    static member OfDiscordMessage (msg: DSharpPlus.Entities.DiscordMessage) =
-        {
-            GuildId = msg.Channel.Guild.Id
-            ChannelId = msg.Channel.Id
-            MessageId = msg.Id
-        }
-    member this.ToDiscordPath =
-        sprintf "https://discord.com/channels/%d/%d/%d" this.GuildId this.ChannelId this.MessageId
-    member this.ToChannelPath =
-        {
-            GuildId = this.GuildId
-            ChannelId = this.ChannelId
-        }
-
 type EnabledOptionValue<'Value> =
     {
         IsEnabled: bool
