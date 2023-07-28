@@ -4,7 +4,7 @@ open FsharpMyExtension
 
 open DiscordBotExtensions
 open Types
-open Extensions
+open DiscordBotExtensions.Extensions
 
 type SortByContainer< ^Case when ^Case: enum<int32> and ^Case: comparison and ^Case: (static member op_Explicit:  ^Case -> int32)> =
     {

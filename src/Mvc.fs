@@ -1,6 +1,6 @@
-module DiscordBotExtensions.Mvc
+namespace DiscordBotExtensions.Mvc
 open DSharpPlus
-open Types
+open DiscordBotExtensions.Types
 
 module Model =
     type Req<'Arg, 'Res, 'Next> = 'Arg * ('Res -> 'Next)

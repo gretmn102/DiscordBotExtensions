@@ -1,4 +1,4 @@
-module DiscordBotExtensions.Extensions
+namespace DiscordBotExtensions.Extensions
 open FsharpMyExtension
 open FsharpMyExtension.Either
 open DSharpPlus
@@ -317,7 +317,7 @@ module InteractionCommand =
     module Commands =
         open System.Threading.Tasks
 
-        open Types
+        open DiscordBotExtensions.Types
 
         let register (commands: Command []) (client: DiscordClient) =
             let rawCommands =
@@ -427,7 +427,7 @@ module DataOrUrl =
     module Parser =
         open FParsec
 
-        open DiscordMessage.Parser
+        open DiscordBotExtensions.DiscordMessage.Parser
 
         type 'a Parser = Parser<'a, unit>
 

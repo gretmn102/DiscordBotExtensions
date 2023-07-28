@@ -5,7 +5,7 @@ open FsharpMyExtension
 open Microsoft.Extensions.Logging
 
 open Types
-open Extensions
+open DiscordBotExtensions.Extensions
 
 type MessageCreateEventHandler = ((DiscordClient * EventArgs.MessageCreateEventArgs) -> unit)
 

@@ -1,4 +1,4 @@
-module DiscordBotExtensions.MessageTemplate
+namespace DiscordBotExtensions.MessageTemplate
 open FParsec
 open FsharpMyExtension
 open FsharpMyExtension.Either
