@@ -1,14 +1,11 @@
 namespace DiscordBotExtensions
 open DSharpPlus
-open FParsec
 open System.Threading.Tasks
 open FsharpMyExtension
 open Microsoft.Extensions.Logging
 
 open Types
 open Extensions
-
-type 'a Parser = Parser<'a, unit>
 
 type MessageCreateEventHandler = ((DiscordClient * EventArgs.MessageCreateEventArgs) -> unit)
 
@@ -23,6 +20,11 @@ type PrefixCommandParser<'Command> =
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 [<RequireQualifiedAccess>]
 module PrefixCommandParser =
+    open FParsec
+    open FsharpMyExtension
+
+    type 'a Parser = Parser<'a, unit>
+
     open DiscordMessage.Parser
 
     let initCommandParser (commands: Parser<_> seq): _ Parser =
@@ -46,7 +48,7 @@ module PrefixCommandParser =
 
 type BotModule =
     {
-        MessageCreateEventHandleExclude: Option<MessageCreateEventHandler Parser>
+        MessageCreateEventHandleExclude: Option<MessageCreateEventHandler PrefixCommandParser.Parser>
         MessageCreateEventHandle: Option<DiscordClient * EventArgs.MessageCreateEventArgs -> unit>
         ComponentInteractionCreateHandle: Option<DiscordClient * EventArgs.ComponentInteractionCreateEventArgs -> bool>
         ModalSubmit: Option<EventArgs.ModalSubmitEventArgs -> bool>
