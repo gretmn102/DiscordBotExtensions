@@ -1,3 +1,20 @@
+## 0.10.0
+* breaking: wrap all modules in a `DiscordBotExtensions` namespace
+* breaking: remove `Shared` namespace
+* breaking: move `IMongoCollection.bulkWriteEmpty` to `MongoCollection`
+* breaking: move `Types.IMongoCollection.isEmpty` to `Db.MongoCollection`
+* breaking: move `Types.StandartDiscordEmoji` to `StandardDiscordEmoji`
+* breaking: move `Types.tryGetEnvironmentVariable` and `Types.getEnvironmentVariable` in `EnvironmentExt` module
+* breaking: move `BotModule.botEventId`, `BotModule.empty`, `BotModule.bindToClientsEvents` in `BotModule.BotModule`
+* breaking: move `BotModule.BotModule` to `BotModule`
+* breaking: rename `CommandParser` to `PrefixCommandParser`
+* breaking: pull out `PrefixCommandParser.Cmd` type from module and rename it to `PrefixCommandParser`
+* breaking: make members of type `PrefixCommandParser` require qualified access
+* breaking: move `Parser<'a>` to `PrefixCommandParser` module
+* breaking: move `Types.MessagePath` to `DiscordMessage` namespace
+* breaking: move `Types.getGuildMember` to `DiscordGuild.getMember`
+* breaking: swap args in `DiscordGuild.getMember`
+
 ## 0.9.0
 * feat: add MVC helper
 
