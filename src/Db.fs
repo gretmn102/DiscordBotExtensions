@@ -26,8 +26,16 @@ module MongoCollection =
 
         0L = collection.CountDocuments((fun _ -> true), countOptions)
 
-type MapSerializer<'Key, 'Value when 'Key : comparison>() =
-    inherit Serializers.SerializerBase<Map<'Key, 'Value>>()
+/// Serializes and deserializes any F# types with `Newtonsoft.Json.JsonConvert`.
+/// Usage:
+/// ```fsharp
+/// MongoDB.Bson.Serialization.BsonSerializer.RegisterSerializer(
+///     typeof<SomeComplexFSharpType>,
+///     new NewtonsoftSerializer<SomeComplexFSharpType>()
+/// )
+/// ```
+type NewtonsoftSerializer<'a>() =
+    inherit Serializers.SerializerBase<'a>()
     // https://stackoverflow.com/questions/47510650/c-sharp-mongodb-complex-class-serialization
     override __.Deserialize(context, args) =
         let serializer = BsonSerializer.LookupSerializer(typeof<BsonDocument>)
@@ -36,7 +44,7 @@ type MapSerializer<'Key, 'Value when 'Key : comparison>() =
         let bsonDocument = document.ToBsonDocument()
 
         let result = BsonExtensionMethods.ToJson(bsonDocument)
-        JsonConvert.DeserializeObject<Map<'Key, 'Value>>(result)
+        JsonConvert.DeserializeObject<'a>(result)
 
     override __.Serialize(context, args, value) =
         let jsonDocument = JsonConvert.SerializeObject(value)
