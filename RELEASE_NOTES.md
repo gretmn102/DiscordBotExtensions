@@ -1,3 +1,6 @@
+## 0.11.0
+* breaking: replace `Db.MapSerializer` on `Db.NewtonsoftSerializer`
+
 ## 0.10.0
 * breaking: wrap all modules in a `DiscordBotExtensions` namespace
 * breaking: remove `Shared` namespace
