@@ -1,3 +1,6 @@
+## 0.12.0
+* update FSharpMyExt to 2.0.0-prerelease.4
+
 ## 0.11.0
 * breaking: replace `Db.MapSerializer` on `Db.NewtonsoftSerializer`
 
