@@ -75,7 +75,7 @@ module Interaction =
                 showString (str.Replace("\n", "\\\n"))
 
             let inline showEnum (enu: 'Enum) =
-                shows (int enu)
+                showByToString (int enu)
 
             let inline showT (showData: _ -> ShowS) (x: ComponentState<'ComponentId, 'Data>): ShowS =
                 showString header << nl
