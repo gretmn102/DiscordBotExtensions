@@ -7,3 +7,4 @@ SixLabors.ImageSharp
 SixLabors.ImageSharp.Drawing
 MongoDB.Driver
 dotenv.net
+FHttp

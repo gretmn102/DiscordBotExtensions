@@ -12,7 +12,7 @@ type PrefixCommandParser<'Command> =
 [<RequireQualifiedAccess>]
 module PrefixCommandParser =
     open FParsec
-    open FsharpMyExtension
+    open FsharpMyExtension.Serialization.Deserializers
 
     type 'a Parser = Parser<'a, unit>
 
@@ -35,4 +35,4 @@ module PrefixCommandParser =
             <|> (prefix >>. (pcommand <|>% PrefixCommandParser.Unknown))
             <|>% PrefixCommandParser.Pass
 
-        FParsecExt.runResult p
+        FParsec.runResult p

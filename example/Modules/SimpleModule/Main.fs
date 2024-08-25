@@ -1,5 +1,5 @@
 module SimpleModule.Main
-open FsharpMyExtension
+open FsharpMyExtension.Control
 open DSharpPlus
 
 open DiscordBotExtensions

@@ -45,7 +45,7 @@ type NullableSnowflakeConverter() =
             | x -> failwithf "snowflake parse error: expected string but %A" x
 
 module Serializer =
-    open FsharpMyExtension
+    open FsharpMyExtension.Serialization.DataFormats
 
     let jsonSerializer =
         JsonSerializer.Create(

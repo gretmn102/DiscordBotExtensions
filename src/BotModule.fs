@@ -1,7 +1,7 @@
 namespace DiscordBotExtensions
 open DSharpPlus
 open System.Threading.Tasks
-open FsharpMyExtension
+open FsharpMyExtension.Collections
 open Microsoft.Extensions.Logging
 
 open Types

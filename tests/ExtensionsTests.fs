@@ -1,6 +1,7 @@
 module ExtensionsTests
 open Fuchu
-open FsharpMyExtension
+open FsharpMyExtension.Serialization.Serializers
+open FsharpMyExtension.Serialization.DataFormats
 
 open DiscordBotExtensions
 

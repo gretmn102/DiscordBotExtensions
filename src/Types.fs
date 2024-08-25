@@ -1,6 +1,6 @@
 module DiscordBotExtensions.Types
 open FsharpMyExtension
-open FsharpMyExtension.Either
+open FsharpMyExtension.Containers
 
 type GuildId = uint64
 type UserId = uint64

@@ -1,6 +1,7 @@
 namespace DiscordBotExtensions.Extensions
 open FsharpMyExtension
-open FsharpMyExtension.Either
+open FsharpMyExtension.Collections
+open FsharpMyExtension.Containers
 open DSharpPlus
 
 module DiscordEmbed =
@@ -8,6 +9,7 @@ module DiscordEmbed =
 
 module Interaction =
     open Newtonsoft.Json
+    open FsharpMyExtension.Serialization.DataFormats
 
     type RawComponentId = int32
 
@@ -58,6 +60,8 @@ module Interaction =
     [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
     [<RequireQualifiedAccess>]
     module ComponentState =
+        open FsharpMyExtension.Serialization.Deserializers
+
         let create id componentId data =
             {
                 Id = id
@@ -69,7 +73,7 @@ module Interaction =
             "cid"
 
         module Printer =
-            open FsharpMyExtension.ShowList
+            open FsharpMyExtension.Serialization.Serializers.ShowList
 
             let showEsapedString (str: string): ShowS =
                 showString (str.Replace("\n", "\\\n"))
@@ -92,8 +96,6 @@ module Interaction =
 
         module Parser =
             open FParsec
-            open FsharpMyExtension.ResultExt
-            open FsharpMyExtension.FParsecExt
 
             type 'a Parser = Parser<'a, unit>
 
@@ -154,9 +156,9 @@ module Interaction =
                 |> Result.map (fun (res, _, _) -> res)
 
         let inline tryDeserialize pdata str: Result<ComponentState<'ComponentId, 'Data>, _> option =
-            match FParsecExt.runResult Parser.pheader str with
+            match FParsec.runResult Parser.pheader str with
             | Ok _ ->
-                FParsecExt.runResult (Parser.parse pdata) str
+                FParsec.runResult (Parser.parse pdata) str
                 |> Some
             | _ -> None
 
@@ -392,6 +394,8 @@ type DataOrUrl =
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 [<RequireQualifiedAccess>]
 module DataOrUrl =
+    open FHttp
+
     let getOrAttachment (message: Entities.DiscordMessage) (dataOrUrl: DataOrUrl option) =
         let download url =
             let res =

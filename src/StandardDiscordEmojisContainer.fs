@@ -1,6 +1,8 @@
 module DiscordBotExtensions.StandardDiscordEmojisContainer
 open FsharpMyExtension
-open FsharpMyExtension.Either
+open FsharpMyExtension.Containers
+open FsharpMyExtension.Primitives
+open FHttp
 
 let emojiSheetMapWidth = 42
 

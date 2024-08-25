@@ -12,6 +12,8 @@ type CustomEmoji =
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 [<RequireQualifiedAccess>]
 module CustomEmoji =
+    open FsharpMyExtension.Serialization.Deserializers
+
     module Parser =
         open FParsec
 
@@ -32,7 +34,7 @@ module CustomEmoji =
         sprintf "<:%s:%d>" customEmoji.Name customEmoji.Id
 
     let parse =
-        FParsecExt.runResult Parser.parser
+        FParsec.runResult Parser.parser
 
 type UnicodeOrCustomEmoji =
     | UnicodeEmoji of string
@@ -40,6 +42,8 @@ type UnicodeOrCustomEmoji =
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 [<RequireQualifiedAccess>]
 module UnicodeOrCustomEmoji =
+    open FsharpMyExtension.Serialization.Deserializers
+
     module Parser =
         open FParsec
 
@@ -57,7 +61,7 @@ module UnicodeOrCustomEmoji =
             emoji
 
     let parse =
-        FParsecExt.runResult Parser.parser
+        FParsec.runResult Parser.parser
 
 type MessagePath =
     {

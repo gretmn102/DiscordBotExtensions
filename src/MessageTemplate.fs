@@ -1,7 +1,7 @@
 namespace DiscordBotExtensions.MessageTemplate
 open FParsec
 open FsharpMyExtension
-open FsharpMyExtension.Either
+open FsharpMyExtension.Containers
 
 open DiscordBotExtensions
 open DiscordMessage.Parser
@@ -47,11 +47,13 @@ type Message = Part list
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 [<RequireQualifiedAccess>]
 module Message =
+    open FsharpMyExtension.Serialization.Deserializers
+
     let parser: Message Parser =
         many Part.Parser
 
     let parse message =
-        FParsecExt.runEither parser message
+        FParsec.runEither parser message
 
     let toString (template: Message): MessageRaw =
         template |> List.map Part.toString |> System.String.Concat
