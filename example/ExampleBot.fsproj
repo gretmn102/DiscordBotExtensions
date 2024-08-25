@@ -4,10 +4,6 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
-  <Target Name="SpicNSpan" AfterTargets="Clean">
-    <RemoveDir Directories="$(BaseOutputPath)" />
-    <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
-  </Target>
   <ItemGroup>
     <ProjectReference Include="..\src\DiscordBotExtensions.fsproj">
       <Name>DiscordBotExtensions.fsproj</Name>

@@ -8,6 +8,7 @@
 open Fake.Core
 open Fake.IO
 open Fake.IO.Globbing.Operators
+open Fake.IO.FileSystemOperators
 // --------------------------------------------------------------------------------------
 // Build variables
 // --------------------------------------------------------------------------------------
@@ -54,7 +55,29 @@ module XmlText =
 // --------------------------------------------------------------------------------------
 // Targets
 // --------------------------------------------------------------------------------------
-Target.create "Clean" (fun _ -> Shell.cleanDir deployDir)
+let cleanBinAndObj projectPath =
+    Shell.cleanDirs [
+        projectPath </> "bin"
+        projectPath </> "obj"
+    ]
+
+Target.create "MainClean" (fun _ ->
+    cleanBinAndObj mainProjDir
+)
+
+Target.create "TestsClean" (fun _ ->
+    cleanBinAndObj testsProjDir
+)
+
+Target.create "ExampleBotClean" (fun _ ->
+    cleanBinAndObj exampleBotDir
+)
+
+Target.create "DeployClean" (fun _j ->
+    Shell.cleanDir deployDir
+)
+
+Target.create "Clean" ignore
 
 Target.create "Meta" (fun _ ->
     [
@@ -125,8 +148,12 @@ open Fake.Core.TargetOperators
 
 "Build"
 
-"Clean"
-  ==> "Deploy"
+"MainClean" ==> "Clean"
+"TestsClean" ==> "Clean"
+"DeployClean" ==> "Clean"
+"ExampleBotClean" ==> "Clean"
+
+"Clean" ?=> "Deploy"
 
 "Clean"
   ==> "Meta"
