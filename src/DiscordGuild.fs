@@ -1,5 +1,5 @@
 module DiscordBotExtensions.DiscordGuild
-open Types
+open FsharpMyExtension.Control.Task
 
 let getMember (user: DSharpPlus.Entities.DiscordUser) (guild: DSharpPlus.Entities.DiscordGuild) =
     match user with

@@ -1,9 +1,9 @@
 module MvcExample.Main
 open FsharpMyExtension.Control
+open FsharpMyExtension.Control.Task
 open DSharpPlus
 
 open DiscordBotExtensions
-open DiscordBotExtensions.Types
 open DiscordBotExtensions.Extensions
 
 open View

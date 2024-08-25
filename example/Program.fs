@@ -3,9 +3,9 @@ open Microsoft.Extensions.Logging
 open System.Threading.Tasks
 open DSharpPlus
 open FsharpMyExtension
+open FsharpMyExtension.Control.Task
 
 open DiscordBotExtensions
-open Types
 
 let botEventId = new EventId(42, "Bot-Event")
 

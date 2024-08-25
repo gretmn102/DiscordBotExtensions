@@ -318,8 +318,7 @@ module InteractionCommand =
     [<RequireQualifiedAccess>]
     module Commands =
         open System.Threading.Tasks
-
-        open DiscordBotExtensions.Types
+        open FsharpMyExtension.Control.Task
 
         let register (commands: Command []) (client: DiscordClient) =
             let rawCommands =

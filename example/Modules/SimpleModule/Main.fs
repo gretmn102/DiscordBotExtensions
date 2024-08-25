@@ -1,9 +1,9 @@
 module SimpleModule.Main
 open FsharpMyExtension.Control
+open FsharpMyExtension.Control.Task
 open DSharpPlus
 
 open DiscordBotExtensions
-open DiscordBotExtensions.Types
 
 type Action =
     | Hello of name: string

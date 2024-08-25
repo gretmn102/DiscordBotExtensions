@@ -2,9 +2,9 @@ namespace DiscordBotExtensions
 open DSharpPlus
 open System.Threading.Tasks
 open FsharpMyExtension.Collections
+open FsharpMyExtension.Control.Task
 open Microsoft.Extensions.Logging
 
-open Types
 open DiscordBotExtensions.Extensions
 
 type MessageCreateEventHandler = ((DiscordClient * EventArgs.MessageCreateEventArgs) -> unit)

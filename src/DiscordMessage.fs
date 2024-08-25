@@ -1,6 +1,4 @@
 namespace DiscordBotExtensions.DiscordMessage
-open FsharpMyExtension
-
 open DiscordBotExtensions.Types
 
 type CustomEmoji =
@@ -160,6 +158,8 @@ module Parser =
             ))
 
 module Ext =
+    open FsharpMyExtension.Control.Task
+
     let clearComponents (msg: DSharpPlus.Entities.DiscordMessage) =
         // does not clean components:
         // let content = DSharpPlus.Entities.Optional.FromValue ""

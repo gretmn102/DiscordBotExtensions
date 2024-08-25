@@ -1,5 +1,7 @@
 namespace DiscordBotExtensions.Mvc
 open DSharpPlus
+open FsharpMyExtension.Control.Task
+
 open DiscordBotExtensions.Types
 
 module Model =

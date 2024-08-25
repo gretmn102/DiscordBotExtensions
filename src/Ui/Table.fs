@@ -1,9 +1,8 @@
 module DiscordBotExtensions.Ui.Table
 open DSharpPlus
-open FsharpMyExtension
+open FsharpMyExtension.Control.Task
 
 open DiscordBotExtensions
-open Types
 open DiscordBotExtensions.Extensions
 
 type SortByContainer< ^Case when ^Case: enum<int32> and ^Case: comparison and ^Case: (static member op_Explicit:  ^Case -> int32)> =
