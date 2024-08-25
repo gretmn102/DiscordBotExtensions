@@ -3,6 +3,7 @@ open Microsoft.Extensions.Logging
 open System.Threading.Tasks
 open DSharpPlus
 open FsharpMyExtension
+open FsharpMyExtension.EnvironmentExt
 open FsharpMyExtension.Control.Task
 
 open DiscordBotExtensions
@@ -19,7 +20,7 @@ let initBotModules client restClient =
 let main argv =
     let getBotToken next =
         let tokenEnvVar = "BotToken"
-        match EnvironmentExt.tryGetEnvironmentVariable tokenEnvVar with
+        match Environment.tryGetEnvironmentVariable tokenEnvVar with
         | None ->
             printfn "Environment variable `%s` is not set!" tokenEnvVar
             1

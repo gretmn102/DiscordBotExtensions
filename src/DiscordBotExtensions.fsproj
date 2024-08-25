@@ -9,7 +9,6 @@
   <ItemGroup>
     <EmbeddedResource Include="StandardDiscordEmojisSheet.txt" />
     <Compile Include="StandardDiscordEmojisContainer.fs" />
-    <Compile Include="EnvironmentExt.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="DiscordGuild.fs" />
     <Compile Include="DiscordMessage.fs" />
