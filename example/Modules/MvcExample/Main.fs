@@ -45,7 +45,7 @@ type Msg =
 
 type State =
     {
-        MvcState: Mvc.Controller.State
+        MvcState: Mvc.Controller.State<Model.ViewCmd, Model.MyCmd>
     }
 
 let interpView (view: Model.ViewCmd) =
@@ -132,6 +132,9 @@ let create (client: DiscordClient) (restClient: DiscordRestClient) =
         let init: State = {
             MvcState = Mvc.Controller.State.empty
         }
+
+        let x = init.MvcState.Deferreds.Jobs[System.DateTime.Now]
+        interp api client x.Type init
 
         MailboxProcessor.Start (fun mail ->
             let rec loop (state: State) =

@@ -34,6 +34,17 @@ let reload () =
 
 let hello name =
     pipeBackwardBuilder {
-        let! _ = MyCmd.mvcCmd (Cmd.responseCreateView false (ViewCmd.Hello name))
-        return MyCmd.End
+        let! messageId = MyCmd.mvcCmd (Cmd.responseCreateView false (ViewCmd.Hello name))
+        match messageId with
+        | Some messageId ->
+            let! _ =
+                MyCmd.mvcCmd (Cmd.setTimeout 1000 (
+                    pipeBackwardBuilder {
+                        do! MyCmd.mvcCmd (Cmd.removeCurrentView None)
+                        return MyCmd.End
+                    })
+                )
+            return MyCmd.End
+        | None ->
+            return MyCmd.End
     }

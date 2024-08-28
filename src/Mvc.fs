@@ -1,5 +1,6 @@
 namespace DiscordBotExtensions.Mvc
 open DSharpPlus
+open FsharpMyExtension.Control
 open FsharpMyExtension.Control.Task
 
 open DiscordBotExtensions.Types
@@ -93,6 +94,8 @@ module Model =
         | ResponseCreateView of Req<{| IsEphemeral: bool; View: 'View |}, MessageId option, 'Next>
         | ResponseUpdateCurrentView of Req<'View, unit, 'Next>
 
+        | Deferred of Req<int * 'Next, Scheduler.JobId, 'Next>
+
     [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
     [<RequireQualifiedAccess>]
     module Cmd =
@@ -134,24 +137,30 @@ module Model =
         let responseUpdateCurrentView view next =
             Cmd.ResponseUpdateCurrentView(view, next)
 
+        let setTimeout time commands next =
+            Cmd.Deferred((time, commands), next)
+
 module Controller =
-    type State =
+    type State<'View, 'Next> =
         {
             EphemeralResponses: Model.EphemeralResponses.State
+            Deferreds: Scheduler.State<'Next>
         }
+
     [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
     [<RequireQualifiedAccess>]
     module State =
-        let empty: State =
+        let inline empty<'View, 'Next> : State<'View, 'Next> =
             {
                 EphemeralResponses = Model.EphemeralResponses.empty
+                Deferreds = Scheduler.State.Empty
             }
 
     type Api<'View, 'Next> =
         abstract GetCurrentChannelId : unit -> ChannelId
         abstract GetCurrentMessageId : unit -> MessageId option
         abstract InterpView : 'View -> Entities.DiscordMessageBuilder
-        abstract ReturnError : State -> 'Next * State
+        abstract ReturnError : State<'View, 'Next> -> 'Next * State<'View, 'Next>
         abstract ResponseCreate : bool -> Entities.DiscordMessageBuilder -> option<MessageId>
         abstract ResponseUpdate : Entities.DiscordMessageBuilder -> unit
         abstract UpdateMessage : MessageId -> Entities.DiscordMessageBuilder -> unit
@@ -256,6 +265,18 @@ module Controller =
 
                 req, state
 
+            | Model.Cmd.Deferred((time, commands), next) ->
+                let job: Scheduler.Job<_> = {
+                    Time = System.DateTime.Now.AddMilliseconds time
+                    Type = commands
+                }
+                let _, deferreds = Scheduler.reduce (Scheduler.AddJob job) state.Deferreds
+                let state =
+                    { state with
+                        Deferreds = deferreds
+                    }
+                next job.Time, state
+
         interp cmd state
 
     let createSlashCommandApi interpView returnError (restClient: DiscordRestClient) (e: EventArgs.InteractionCreateEventArgs) =
@@ -308,7 +329,7 @@ module Controller =
             member _.ResponseUpdate(b: Entities.DiscordMessageBuilder): unit =
                 responseCreate false b |> ignore
 
-            member _.ReturnError(state: State): 'Next * State =
+            member _.ReturnError(state: State<'View, 'Next>): 'Next * State<'View, 'Next> =
                 returnError state
 
             member _.UpdateMessage(messageId: MessageId) (b: Entities.DiscordMessageBuilder): unit =
@@ -382,7 +403,7 @@ module Controller =
                     InteractionResponseType.UpdateMessage
                 awaiti <| e.Interaction.CreateResponseAsync (typ, b)
 
-            member _.ReturnError(state: State): 'Next * State =
+            member _.ReturnError(state: State<'View, 'Next>): 'Next * State<'View, 'Next> =
                 returnError state
 
             member _.UpdateMessage(messageId: MessageId) (b: Entities.DiscordMessageBuilder): unit =
@@ -446,7 +467,7 @@ module Controller =
             member _.ResponseUpdate(b: Entities.DiscordMessageBuilder): unit =
                 awaiti <| e.Message.ModifyAsync(b)
 
-            member _.ReturnError(state: State): 'Next * State =
+            member _.ReturnError(state: State<'View, 'Next>): 'Next * State<'View, 'Next> =
                 returnError state
 
             member _.UpdateMessage(messageId: MessageId) (b: Entities.DiscordMessageBuilder): unit =
