@@ -30,7 +30,6 @@ let emojiSheetMap =
 open SixLabors.ImageSharp
 open SixLabors.ImageSharp.PixelFormats
 open SixLabors.ImageSharp.Processing
-open SixLabors.ImageSharp.Drawing.Processing
 
 let emojiSheetUrl = "https://discord.com/assets/2071e22f8044e1f9e4f7c7afb7ac484a.png"
 let getEmojiSheet () =

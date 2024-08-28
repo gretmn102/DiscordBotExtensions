@@ -4,7 +4,6 @@ DSharpPlus.Rest
 FParsec
 FSharpMyExt
 SixLabors.ImageSharp
-SixLabors.ImageSharp.Drawing
 MongoDB.Driver
 dotenv.net
 FHttp

@@ -9,14 +9,13 @@ nuget Fuchu
 nuget FParsec
 nuget SixLabors.ImageSharp == 1.0.4
 nuget SixLabors.Fonts == 1.0.0-beta15
-nuget SixLabors.ImageSharp.Drawing == 1.0.0-beta13
 nuget MongoDB.Driver
 nuget dotenv.net
 
 source https://gitlab.com/api/v4/projects/28574921/packages/nuget/index.json
 storage: none
 nuget FSharpMyExt prerelease
-nuget FHttp
+nuget FHttp >= 0.3.0 lowest_matching: true
 
 group Build
     source https://api.nuget.org/v3/index.json
