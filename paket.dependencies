@@ -17,6 +17,16 @@ storage: none
 nuget FSharpMyExt prerelease
 nuget FHttp >= 0.3.0 lowest_matching: true
 
+group Test
+    storage: none
+    strategy: min
+    source https://api.nuget.org/v3/index.json
+    framework: netcoreapp3.1
+
+    nuget FSharp.Core >= 6.0.7 lowest_matching: true
+    nuget Fuchu
+    nuget MongoDB.Driver >= 2.13.2 lowest_matching: true
+
 group Build
     source https://api.nuget.org/v3/index.json
     framework: netstandard2.0
