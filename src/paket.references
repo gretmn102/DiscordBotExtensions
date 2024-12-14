@@ -5,5 +5,4 @@ FParsec
 FSharpMyExt
 SixLabors.ImageSharp
 MongoDB.Driver
-dotenv.net
 FHttp
